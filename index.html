@@ -1,0 +1,138 @@
+<!-- 程序运行初始界面，左侧显示资源管理器，右侧显示序列数据及改变颜色后的序列 -->
+<!DOCTYPE html>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>VisFeature</title>
+  <link rel="stylesheet" href="css/app.css" />
+  <link rel="StyleSheet" href="css/dtree.css" />
+  <!--jquery-->
+  <script src="js/jquery-1.8.0.min.js"></script>
+  <!--菜单栏-->
+  <script defer=true src="js/appMenu.js"></script>
+  <!--div宽度可调节-->
+  <script src="js/divWidthResize.js"></script>
+  <!--dtree-->
+  <script src="js/dtree.js"></script>
+  <!-- echarts绘图控件 -->
+  <script src="js/echarts.js"></script>
+  <!-- 生成示例fasta文件 -->
+  <script src="js/exampleFasta.js"></script>
+
+  <script>
+    // 监听主进程发来的消息，如果收到消息，则跳转到相应的html
+    require('electron').ipcRenderer.on('jumpToVisMode1Html', (event, message) => {
+      window.location.href = encodeURI("visMode1.html?selectFolder=" + selectFolder + "&selectFile=" + selectFile);
+    });
+
+    require('electron').ipcRenderer.on('jumpToVisMode2Html', (event, message) => {
+      window.location.href = encodeURI("visMode2.html?selectFolder=" + selectFolder + "&selectFile=" + selectFile);
+    });
+
+    require('electron').ipcRenderer.on('jumpToVisModeCompAndVis', (event, message) => {
+      window.location.href = encodeURI("visModeCompAndVis.html?selectFolder=" + selectFolder + "&selectFile=" + selectFile + "&dimension=" + message["dimension"] + "&seqType=" +  message["seqType"]);
+    });
+
+    // 保持用户拖动的 left div 位置,注意：styleSheets[0]表示第1个css文件，cssRules[3]表示第4条规则,顺序不能错
+    document.styleSheets[0].cssRules[3].style.width = require('electron').remote.getGlobal('sharedObject').leftDivWidth;
+  </script>
+</head>
+
+<body>
+  <div>
+    <div id="left" class="left">
+      <div class="dtree">
+        <p><b>Resource Manager</b></p>
+        <p><a href="javascript: d.openAll();">open all</a> | <a href="javascript: d.closeAll();">close all</a></p>
+        <!--在页面左侧显示文件列表-->
+        <script type="text/javascript" src="js/showFile.js"></script>
+      </div>
+    </div>
+
+    <!-- 左右两个div中间的可调节宽度部分 -->
+    <div id="rightbar" class="rightbar">
+    </div>
+
+    <div id="main-area" class="main-area">
+      <div id="top" class="top">
+        <label id="FilePathLabel" class="file-path-label"></label>
+      </div>
+
+      <!-- textArea和背后的div 不能改！ -->
+      <div class="container">
+        <div id="colorSequence" class="colorSequence" placeholder="Please input or open a file in FASTA format."></div>
+        <textarea id="textArea" class="textArea"
+          onscroll="document.getElementById('colorSequence').scrollTop = this.scrollTop;" autofocus></textarea>
+      </div>
+      <script>
+
+        // 使textArea和背后的div中可以使用Tab键，但无法Undo
+        // $("textarea").on('keydown', function (e) {
+        //   if (e.keyCode == 9) {
+        //     e.preventDefault();
+        //     var indent = '    ';
+        //     var start = this.selectionStart;
+        //     var end = this.selectionEnd;
+        //     var selected = window.getSelection().toString();
+        //     selected = indent + selected.replace(/\n/g, '\n' + indent);
+        //     this.value = this.value.substring(0, start) + selected + this.value.substring(end);
+        //     this.setSelectionRange(start + indent.length, start + selected.length);
+        //     // console.log('textArea值在改变');
+        //     var sequenceType = require('electron').remote.getGlobal('sharedObject').sequenceType;
+        //     visualization(sequenceType);
+        //   }
+        // })
+      </script>
+    </div>
+  </div>
+</body>
+<!-- <script src="js/colorSequence.js"></script>
+<script src="js/showEchartsMode1.js"></script> -->
+
+<!-- 监听textArea内容变化，如果内容变化则相应地改变colorSequence div的内容 -->
+<script>
+  // let firstLoadPageFlag = true;
+  $('#textArea').bind('input propertychange', function () {
+    firstLoadPageFlag = false;
+    console.log('textArea值在改变');
+    let sequenceType = require('electron').remote.getGlobal('sharedObject').sequenceType;
+    // setTimeout("visualization()", 100);  //在指定的毫秒数后调用函数
+    if (sequenceType != "None") {
+      console.log("change color");
+      visualization(sequenceType);
+    }
+  });
+</script>
+
+<!-- 单击该按钮后，输入参数，生成曲线图 -->
+<!-- <button onclick="createDiagram()">Visualization</button>&nbsp;&nbsp;&nbsp;
+            <button onclick="">Compute</button> -->
+<script src="js/colorSequence.js"></script>
+
+<script src="js/showEchartsMode.js"></script>
+<script>
+  // 当selectFolder和FilePathLabel为空并且当前文件名不为空，则显示当前文件的内容。防止页面刷新或从可视化界面返回主界面时，textArea为空
+  if ((selectFolder == null || selectFolder == "null") && document.getElementById("FilePathLabel").innerText == "" && require('electron').remote.getGlobal('sharedObject').theFile.name) {
+    console.log("FilePathLabel为空");
+    document.getElementById("FilePathLabel").innerText = require('electron').remote.getGlobal('sharedObject').theFile.name;
+    const fs = require('fs');
+    textArea.value = fs.readFileSync(require('electron').remote.getGlobal('sharedObject').theFile.name, 'utf8');
+  }
+
+  // 如果在visMode1.html 点击了菜单栏的'Open File'，则显示文件内容
+  if (selectFolder == null && selectFile != null && textArea != null) {
+    vis_showFile();
+  }
+
+  function vis_showFile() {
+    document.getElementById("FilePathLabel").innerText = require('electron').remote.getGlobal('sharedObject').theFile.name;
+    textArea.value = require('electron').remote.getGlobal('sharedObject').theFile.value;
+    visualization();
+  }
+</script>
+
+
+</html>

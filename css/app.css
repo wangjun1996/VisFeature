@@ -1,0 +1,260 @@
+html {
+    height: 100%;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    font-family: 'Helvetica', 'Arial', 'sans';
+    height: 100%;
+}
+
+.top {
+    top: 0px;
+    background-color: rgb(246, 245, 245);
+    width: 100%;
+    height: 20px;
+    text-align: center;
+    /* position: fixed; */
+    /* z-index: 2; 设置元素的堆叠顺序。仅能在定位元素上奏效（例如 position:absolute;） */
+}
+
+.left {
+    float: left;
+    width: 18%;
+    height: 100%;
+    min-width: 10%;
+    max-width: 40%;
+    /* background-color: #ECF5FF; */
+    /* 如果内容超过指定高度，则浏览器会显示滚动条以便查看其余的内容。 */
+    overflow: auto;
+    border-color: #CCCCCC;
+    border-style: solid;
+    border-width: 0 1px;
+}
+
+/* 左右两个div中间的可调节宽度部分 */
+
+.rightbar {
+    width: 3px;
+    cursor: e-resize;
+    float: left;
+    /* background: #cccccc;  */
+}
+
+.main-area {
+    /* margin-left: 15%; */
+    float: none;
+    width: auto;
+    background-color: rgb(244, 246, 207);
+    /* background-color: rgb(245, 241, 241); */
+    overflow: auto;
+    /* float: right; */
+    /* clear: both; */
+    /* margin: 2em; */
+    /* z-index: 1; */
+}
+
+.container {
+    float: left;
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+}
+
+.colorSequence, .textArea {
+    /*设置textArea宽度高度*/
+    width: 79%;
+    height: 91%;
+    padding: 10px;
+    font-size: 12pt;
+    font-family: 'Courier New', Courier, monospace;
+    /* line-height: 20px; */
+    /* 文字间距 */
+    letter-spacing: 1px;
+    word-break: break-all;
+    overflow: auto;
+}
+
+.textArea {
+    display: block;
+    position: absolute;
+    z-index: 2;
+    margin: 0;
+    /* 设置光标颜色和字体透明关键 */
+    color: black;
+    /* -webkit-text-fill-color: transparent;
+    background-color: transparent; */
+    -webkit-text-fill-color: black;
+    background-color: white;
+    overflow-x: hidden;
+    resize: none;
+}
+
+.colorSequence {
+    position: absolute;
+    border: none;
+    z-index: 1;
+    background-color: #fff;
+    overflow: auto;
+    /* 保留多个空格，正常地进行换行，多个空格时仍正常显示，而不是只显示一个空格 */
+    white-space: pre-wrap;
+    display: none;
+}
+
+/*DIV实现CSS的placeholder*/
+.colorSequence:empty:before {
+    content: attr(placeholder);
+    color: rgba(168, 167, 167, 0.452);
+}
+
+/* 焦点时内容为空 */
+.colorSequence:focus:before {
+    content: none;
+}
+
+.bottom {
+    background-color: rgb(244, 246, 207);
+    width: 99%;
+    height: 400px;
+    text-align: center;
+    margin: 0px auto;
+}
+
+.diagram {
+    background-color: rgb(244, 246, 207);
+    width: 99%;
+    /* height: 630px; */
+    height: 99%;
+    text-align: center;
+    margin: 0px auto;
+}
+
+.alignmentResult {
+    display: none;
+}
+
+.indexTable {
+    width: 100%;
+    border: 1px solid rgb(174, 174, 194);
+    /* 实现元素居中 */
+    margin: 0px auto;
+    padding: 10px;
+    /* overflow: auto; */
+}
+
+.selectSeqTable {
+    border-spacing: 5px;
+    width: 95%;
+    border: 1px solid rgb(103, 172, 218);
+    margin: 0px auto;
+    font-size: 10pt;
+    /* padding: 10px; */
+}
+
+.multipleSelectTable {
+    /* border-collapse: separate; */
+    border-spacing: 5px;
+    width: 95%;
+    border: 1px solid rgb(103, 172, 218);
+    margin: 0px auto;
+    font-size: 10pt;
+    /* padding: 10px; */
+}
+
+.compAndVisTable {
+    width: 90%;
+    margin: 0px auto;
+    padding: 10px;
+    border-collapse: collapse;
+    font-size: 11pt;
+    /* font-family: Verdana, Geneva, Tahoma, sans-serif; */
+}
+
+.visMode2Table {
+    width: 80%;
+    border: 1px solid white;
+    margin: 0px auto;
+    padding: 5px;
+    font-size: 12pt;
+    font-family: 'Courier New', Courier, monospace;
+    white-space: pre;
+}
+
+.ultraPseResultDiv {
+    width: 90%;
+    margin: 0px auto;
+    padding: 10px;
+    border-collapse: collapse;
+    font-size: 10pt;
+    white-space: pre-wrap;
+}
+
+.selectMode {
+    width: 100%;
+    /* margin:0px auto;  */
+    text-align: center;
+}
+
+td {
+    height: 20px;
+    text-align: center;
+    /* border: 1px solid gray;  */
+}
+
+.file-path-label {
+    color: rgb(141, 138, 138);
+    font-size: 10pt;
+}
+
+.fetchTextArea {
+    height: 50px;
+    width: 99%;
+    font-size: 11pt;
+}
+
+.fetchResultTextArea {
+    height: 240px;
+    width: 99%;
+    /* !important 设置css的优先级最高，防止bootstrap的css覆盖掉此css */
+    font-size: 11pt;
+    line-height: 20px;
+    /* 文字间距 */
+    /* letter-spacing: 1px; */
+}
+
+.upseResultTextArea {
+    height: 200px;
+    width: 99%;
+    font-size: 12px;
+    /* 字体加粗 */
+    font-weight: 600;
+    line-height: 20px;
+    /* 文字间距 */
+    /* letter-spacing: 1px; */
+}
+
+button{
+    cursor: pointer;
+}
+
+/* .menu-button{
+    height: 50px;
+    width: 120px;
+    margin: 15px;
+    background-color: #ECF5FF;
+    font-family: Arial;
+    font-size: 13px;
+    cursor:pointer;
+    /* color: white; 
+} */
+
+/* #current-folder {
+    float: left;
+    color: white;
+    background: rgba(0,0,0,0.2);
+    padding: 0.5em 1em;
+    min-width: 10em;
+    border-radius: 0.2em;
+    margin: 1em;
+} */

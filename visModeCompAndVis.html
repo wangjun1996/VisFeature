@@ -1,0 +1,111 @@
+<!-- 序列可视化-概率密度图界面，左侧显示资源管理器，右侧显示组分概率密度图 -->
+<!DOCTYPE html>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Compute And Visualization</title>
+  <link rel="stylesheet" href="css/app.css" />
+  <link rel="StyleSheet" href="css/dtree.css" />
+  <!--jquery-->
+  <!-- <script src="http://code.jquery.com/jquery-1.8.0.min.js"></script> -->
+  <script src="js/jquery-1.8.0.min.js"></script>
+  <!--菜单栏-->
+  <script src="js/appMenu.js"></script>
+  <!--div宽度可调节-->
+  <script src="js/divWidthResize.js"></script>
+  <!--dtree-->
+  <script src="js/dtree.js"></script>
+  <!-- echarts绘图控件 -->
+  <script src="js/echarts.js"></script>
+  <!-- 计算和可视化 -->
+  <script src="js/showRimage.js"></script>
+  <script>
+    // 保持用户拖动的 left div 位置,注意：styleSheets[0]表示第1个css文件，cssRules[3]表示第3条规则,故顺序不能错
+    document.styleSheets[0].cssRules[3].style.width = require('electron').remote.getGlobal('sharedObject').leftDivWidth;
+
+    // 当浏览器大小变化时，刷新页面使曲线图自适应窗口大小
+    $(window).resize(function () {
+      location.reload();
+    });
+  </script>
+  <style>
+    /* .main-area, diagram,bottom{
+      background-color: white;
+    } */
+    td {
+      text-align: left;
+    }
+  </style>
+</head>
+
+<body>
+  <div>
+
+    <div id="left" class="left">
+
+      <div class="dtree">
+        <p><b>Resource Manager</b></p>
+        <p><a href="javascript: d.openAll();">open all</a> | <a href="javascript: d.closeAll();">close all</a></p>
+        <!--在页面左侧显示文件列表-->
+        <script type="text/javascript" src="js/showFile.js"></script>
+      </div>
+    </div>
+
+    <div id="rightbar" class="rightbar">
+    </div>
+
+    <div id="main-area" class="main-area">
+      <hidden id="top" class="top">
+        <hidden hidden='hidden' id="FilePathLabel" class="file-path-label"></hidden>
+      </hidden>
+
+      <div class="selectMode">
+        Mode:&nbsp;&nbsp;&nbsp;
+        <select id='Rmode' onchange="changeRmode()">
+          <option value="single">single composition</option>
+          <option value="multiple">multiple compositions</option>
+        </select>
+        &nbsp;&nbsp;&nbsp;
+        <button onclick="backToMainPage()">Main Page</button>
+      </div>
+
+      <!-- <div id="alignmentResult" class="alignmentResult">
+        <table id="visMode2Table" class="visMode2Table">
+        </table>
+      </div> -->
+
+      <!-- 调用clustalw2进行多序列比对 -->
+      <!-- <script src="js/useClustalw2.js"></script> -->
+
+      <div id="RplotsPdf"></div>
+
+      <div id="diagram" class="diagram">
+      </div>
+      <script>
+        // let html = "";
+        // console.log("dimension:", dimension);
+        // if (dimension > 20) {
+        //   for (let i = 1; i <= dimension; i++) {
+        //     html += `<img src="R-3.5.3/bin/SingleCompositionImg/composition${i}.svg"><br><br>`;
+        //     $("#diagram").html(html);
+        //   }
+        // }
+        // else{
+        //   let arr = ['A','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','V','W','Y'];
+        //   for (let j = 0; j < 20; j++) {
+        //     html += `<img src="R-3.5.3/bin/SingleCompositionImg/${arr[j]}.svg"><br><br>`;
+        //     $("#diagram").html(html);
+        //   }
+        // }
+        showSingleCompositionImg();
+      </script>
+    </div>
+
+  </div>
+
+</body>
+
+</html>

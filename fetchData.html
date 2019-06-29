@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Fetch Data</title>
+    <link rel="stylesheet" href="css/app.css" />
+    <!-- <link rel="stylesheet" href="css/bootstrap.min.css" /> -->
+    <!-- jquery -->
+    <script src="js/jquery-1.8.0.min.js"></script>
+    <!-- bootstrap -->
+    <!-- <script src="js/bootstrap.min.js"></script> -->
+    <!-- 根据ID/Query获取数据 -->
+    <script src="js/fetchData.js"></script>
+    <style type="text/css">
+        td {
+            height: 25px;
+            width: 150px;
+            padding: 5px;
+            text-align: left;
+            border: 1px solid gray;
+        }
+    </style>
+    <script>
+        // 页面加载完毕后为TextArea控件添加右键菜单
+        window.onload = function () {
+            addContextMenu("fetchTextArea");
+            addContextMenu("fetchResultTextArea");
+        }
+    </script>
+</head>
+
+<body>
+
+    <table class="compAndVisTable">
+        <tr>
+            <td>Sequence type:</td>
+            <td>
+                <select id="seqType" onchange="changeSeqType()">
+                    <option value="Uniprot">Protein</option>
+                    <option value="GenBank">DNA / RNA</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr id="tr-fetchMethod">
+            <td>Fetch method:</td>
+            <td>
+                <select id="fetchMethod" onchange="changeMethod()">
+                    <option value="ID">Identifier / Entry name</option>
+                    <option value="Query">Query expression</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr id="tr-priority">
+            <td>Fetch priority:
+                <img src="./img/explanation.jpg" alt="explain" style="height:18px;width:18px;cursor:pointer"
+                    onclick="explainFetchPriority()" />
+            </td>
+            <td>
+                <select id="priority" onchange="changePriority()">
+                    <option value="speedPriority">Speed priority</option>
+                    <option value="orderPriority">Order priority</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2">
+                <label id="fetchLabel">Input the identifiers or entry names of the sequence that you want to fetch:<br>(
+                    separated by commas )</label>
+                <img src="./img/explanation.jpg" alt="explain" style="height:18px;width:18px;cursor:pointer"
+                    onclick="explainFetchInput()" />
+                <br><br>
+                <textarea id="fetchTextArea" class="fetchTextArea" autofocus></textarea>
+            </td>
+        </tr>
+
+        <tr id="tr-time">
+            <td colspan="2">
+                Time required: about <label id="timeLabel">0</label> second(s)
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" style="text-align: center;">
+                <button onclick="fetchData()" class="btn btn-info">Fetch</button>&nbsp;&nbsp;&nbsp;
+                <button onclick="exampleParameter()" class="btn btn-info">Example</button>&nbsp;&nbsp;&nbsp;
+                <button onclick="resetParameter()" class="btn btn-info">Reset</button><br>
+                <img id="loadingGif" src="img/loading.gif"/ height="25px" width=25px" style="display: none;">
+                <font color="orange"><label id="loadingFlag" style="display: none;">loading......</label></font>
+                <font color="red"><label id="nullTextFlag" style="display: none;"></label></font>
+                <font color="red"><label id="networkErrorFlag" style="display: none;"></label></font>
+            </td>
+        </tr>
+
+        <tr id="tr-fetchResult">
+            <td colspan="2">
+                Fetch result:
+                <br><br>
+                <textarea id="fetchResultTextArea" class="fetchResultTextArea" readonly></textarea>
+                <font color="blue"><label id="invalidFlag"></label><label id="invalidId"></label></font>
+            </td>
+        </tr>
+    </table>
+</body>
+
+
+<!-- 监听textArea内容变化，如果内容变化则相应地改变timeLabel的内容 -->
+<script>
+    $('#fetchTextArea').bind('input propertychange', function () {
+        let seqArr = $("#fetchTextArea").val().split(",");
+        console.log('fetchTextArea值在改变');
+        // console.log("num:" + seqArr.length);
+        if($("#fetchTextArea").val() == "")
+            $("#timeLabel").html("0");
+        else
+        {
+            switch($("#seqType").val()){
+                case 'Uniprot':
+                    switch($("#priority").val()){
+                        case 'speedPriority':
+                            $("#timeLabel").html((seqArr.length/10).toFixed(2));
+                            break;
+                        case 'orderPriority':
+                            $("#timeLabel").html((seqArr.length/3).toFixed(2));
+                            break;
+                    }
+                    break;
+                case 'GenBank':
+                    switch($("#priority").val()){
+                            case 'speedPriority':
+                                $("#timeLabel").html((seqArr.length/1.6).toFixed(2));
+                                break;
+                            case 'orderPriority':
+                                $("#timeLabel").html((seqArr.length/1.2).toFixed(2));
+                                break;
+                    }
+                    break; 
+            }
+        }
+        //   let sequenceType = require('electron').remote.getGlobal('sharedObject').sequenceType;
+        //   // setTimeout("visualization()", 100);  //在指定的毫秒数后调用函数
+        //   if (sequenceType != "None") {
+        //     console.log("change color");
+        //     visualization(sequenceType);
+        //   }
+    });
+</script>
+
+</html>

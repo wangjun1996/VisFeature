@@ -1,0 +1,363 @@
+<!-- 计算序列的特征向量前需要输入的参数 -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Compute And Visualization</title>
+    <link rel="stylesheet" href="css/app.css" />
+    <!--jquery-->
+    <!-- <script src="http://code.jquery.com/jquery-1.8.0.min.js"></script> -->
+    <script src="js/jquery-1.8.0.min.js"></script>
+    <!-- 计算序列的特征向量，并可视化 -->
+    <script src="js/showEchartsCompAndVis.js"></script>
+    <style type="text/css">
+        td {
+            height: 20px;
+            width: 110px;
+            padding: 5px;
+            text-align: left;
+            border: 1px solid gray;
+        }
+        textarea{
+            height: 16px;
+            width: 220px;
+        }       
+        #modeSelect
+        {
+            height: 15px;
+            width: 110px;
+            text-align: left;
+            border: none;
+            width: 150px;
+            font-size: 10px;
+        }
+    </style>
+    <script>
+        // 页面加载完毕后为TextArea控件添加右键菜单
+        window.onload = function () {
+            addContextMenu("upseResultTextArea");
+        }
+    </script>
+</head>
+
+<body>
+    <div>
+        <table id="parameterTable" class="compAndVisTable" style="table-layout:fixed">
+            <tr>
+                <td>Method:
+                    <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainMethod()"/>
+                </td>
+                <td>
+                    <select id="method" onchange="changeMethod()">
+                        <option value="Self-defined">Self-defined parameters</option>
+                        <option value="TDF">Task definition file (TDF)</option>
+                    </select>
+                </td>
+            </tr>
+
+            <tr id="tr-sequenceType">
+                <td>Sequence type:</td>
+                <td>
+                    <select id = "sequenceType" onchange = "changeMode()">
+                        <option>DNA</option>
+                        <option>RNA</option>
+                        <option>Protein</option>
+                    </select>
+                </td>
+            </tr>
+
+            <tr id = "tr-mode">
+                <td>Mode:</td>
+                <td>
+                    <select id = "mode" onchange = "changeNote()">
+                        <option value = "comp">Composition based</option>
+                        <option value = "cov">Covariance based</option>
+                        <option value = "pse">Pseudo-factor based</option>
+                    </select>
+                </td>
+            </tr>
+
+            <tr id = "tr-note" onclick="changeNote2()">
+                <td>Sub-Mode:</td>     
+                <td>
+                    <select id = "note">
+                        <option>DNA compositions</option>
+                        <option>DNA-Di-nucleotide compositions</option>
+                        <option>DNA-Tri-nucleotide compositions</option>
+                    </select>
+                </td>           
+            </tr>
+
+            <tr id="tr-CTD" style="display:none">
+                <td>CTD mode</td>
+                <td>
+                    <select id="CTDmode">
+                        <option>CTD_Composition</option>
+                        <option>CTD_Transition</option>
+                        <option>CTD_Distribution</option>
+                    </select>
+                </td>
+            </tr>
+
+            <tr id = "tr-PhyControl" style="display: none">
+                <td id="phyprop">Physicochemical properties:</td>
+                <td>
+                    <button id="phy" onclick="showPhy()" style="width: 60px">choose</button>
+                    &nbsp;&nbsp;&nbsp;<button style="width: 60px" onclick="hidePhy()">hide</button>
+                    &nbsp;&nbsp;&nbsp;<button id="btnadddprop" style="width:180px" id="showAddTableBtn" onclick="showAddtable()">add self-defined property</button>
+                    <input id="showSelfdefinedProp" type="text" style="width: 96%;margin-top:7px;" readonly="true" placeholder="Self-defined properties : null"/>
+                </td>
+            </tr>
+
+            <tr id="tr-Phy" style="display: none">
+                <td colspan="2"><table id="checkboxes" frame=void>
+                </table></td>
+            </tr>  
+
+            <tr style="display: none;">
+                <td>Task:</td>
+                <td>
+                    <select id="taskType">
+                        <option>PseAAC</option>
+                        <option>PseDNC</option>
+                        <option>psepssm</option>
+                        <option>pseb-propy</option>
+                    </select>
+                </td>
+            </tr>
+
+            <tr id="tr-lambda" style="display: none;">
+                <td id="td-lambda">λ:
+                    <!-- <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainLambda()"/> -->
+                </td>
+                <td>
+                    <input type="text" id="lambda" class="text">
+                </td>
+            </tr>
+
+            <tr id="tr-omega" style="display: none;">
+                <td id="td-omega">w:
+                    <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainOmega()"/>
+                </td>
+                <td>
+                    <input type="text" id="omega" class="text">
+                </td>
+            </tr>
+
+            <tr id="tr-output">
+                <td>Output format:
+                    <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainOutputFormat()"/>
+                </td>
+                <td>
+                    <select id="outputFormat">
+                        <option value="csv">csv (comma separated)</option>
+                        <option value="tsv">tsv (tab separated)</option>
+                        <option value="svm">svm (libSVM)</option>
+                    </select>
+                </td>
+            </tr>
+
+            <tr id="tr-TDF" style="display:none">
+                <td>Upload a task definition file (TDF):
+                    <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainTDF()"/>
+                </td>
+                <td>
+                    <button id="chooseTdfBtn" onclick="chooseTdf()">Upload</button>
+                    <label id="TdfPathLabel" class="file-path-label"></label>
+                </td>
+            </tr>
+
+            <tr id="tr-input">
+                <td>(optional) Upload a file in FASTA format:
+                    <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainInput()"/>
+                </td>
+                <td>
+                    <button id="chooseInputBtn" onclick="chooseInputPath()">Upload</button>
+                    <label id="inputPathLabel" class="file-path-label"></label>
+                </td>
+            </tr>
+
+            <tr id="tr-location">
+                <td>(optional) Output location:
+                    <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainOutputLocation()"/>
+                </td>
+                <td>
+                    <button onclick="chooseOutputPath()">Choose</button>
+                    <label id="outputPathLabel" class="file-path-label"></label>
+                </td>
+            </tr>
+
+            <tr id = "tr-type" style="display:none">
+                <td>(optional) Type:
+                    <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainType()"/>
+                </td>
+                <td>
+                    <input type="radio" name="type" id="type1" value='1'>Ⅰ &nbsp;&nbsp;&nbsp;
+                    <input type="radio" name="type" id="type2" value="2">Ⅱ
+                </td>
+            </tr>
+            
+            <tr>
+                <td colspan="2" style="text-align:center">
+                    <button id = "submit" onclick="submit()">Submit</button>
+                    <!-- <script>
+                        function submit() {
+                            let type = $("input[name='type']:checked").val();
+                            setParameterObject(type);
+                            console.log(require('electron').remote.getGlobal('sharedObject').upsePara);
+                            compute(type);
+                            // ipcRenderer.send('computeAndVis-close', parameterObejct);
+                            // window.close();
+                        }
+                    </script> -->
+                    &nbsp;&nbsp;&nbsp;<button onclick="exampleParameter()">Example</button>
+                    &nbsp;&nbsp;&nbsp;<button onclick="resetParameter()">Reset</button>
+                    &nbsp;&nbsp;&nbsp;<button id="showProperty" onclick="showProperty()">Define user-type sequence</button></td>
+            </tr>
+        </table>
+
+        <table id="usertypeTable" class="compAndVisTable" style="display: none;">
+            <tr>
+                <td colspan="2" style="text-align:center">Define a new sequence type
+                    <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainDefineSequence()"/>
+                </td>
+            </tr>
+            <tr id="tr-nationObject" style="display: none;">
+                <td>Notation Name:</td>
+                <td>
+                    <input id="notationObject" type="text" style="width: 150px" value="USER_TYPE"/>
+                </td>
+            </tr>
+
+            <tr id="tr-base">
+                <td>Base:
+                    <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainBase()"/>
+                </td>
+                <td>
+                    <input id="base" type="text" style="width: 300px;">
+                </td>
+        
+            </tr>
+
+            <tr id="tr-length">
+                <td>Length:
+                    <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainLength()"/>
+                </td>
+                <td>
+                    <input id="length" type="text" style="width: 50px;">
+                </td>
+            
+            </tr>
+
+            <tr id="tr-reduce">
+                <td>(optional)Reducemap:
+                <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainReduce()"/>
+                </td>
+                <td>
+                    <input id="reduce" type="text" style="width: 300px;">
+                </td>
+                
+            </tr>
+
+            <tr>
+                <td colspan="2" style="text-align: center;">
+                    <button id="add2" onclick="ToTableAddProperty()">Add physicochemical property</button>
+                    &nbsp;&nbsp;&nbsp;<button id="propexample" onclick="propexample()">Example</button>
+                    &nbsp;&nbsp;&nbsp;<button id="backToPara" onclick="backToPara()">Back</button>
+                </td>
+            </tr>
+
+
+        </table>
+
+        <table id="resultTable" class="compAndVisTable" style="display: none;">
+            <tr>
+                <td>
+                    UltraPse compute result:<br><br>
+                    <textarea id="upseResultTextArea" class="upseResultTextArea" readonly></textarea>
+                </td>
+            </tr>
+            <!-- <div id="ultraPseResult" class="ultraPseResultDiv"></div> -->
+
+            <tr id="tr-label">
+                <td>
+                    Upload a label file:
+                    <button id="uploadLabelBtn" onclick="chooseLabelFile()">Upload</button>
+                    <label id="labelPathLabel" class="file-path-label"></label>
+                </td>
+            </tr>
+            
+            <tr>
+                <td style="text-align: center;">
+                    <button id="upseVisualizationBtn" onclick="upseVisualization()">Visualization(about 10 seconds.)</button>
+                    &nbsp;&nbsp;&nbsp;<button onclick="back()">Back</button><br>
+                    <!-- <font color="blue"><label id="visualizationNote">Note: Visualization will take about 10 seconds, please wait.</label></font><br> -->
+                    <img id="loadingGif" src="img/loading.gif"/ height="25px" width=25px" style="display: none;">
+                    <font color="orange"><label id="loadingFlag" style="display: none;">loading......</label></font>
+                </td>
+            </tr>
+        </table>
+
+        <table id="tab-addProperty" class="compAndVisTable" style="display: none;">
+            <tr>
+                <td colspan="2" style="text-align:center">Define a new physicochemical property
+                    <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainDefineProperty()"/>
+                </td>
+            </tr>
+
+            <tr id="tr-PropObject">
+                <td>Property Name:
+                    <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainPropertyName()"/>
+                </td>
+                <td>
+                    <input id="PropObj" type="text"> 
+                </td>
+            </tr>
+
+            <tr id="tr-template">
+                <td>(optional)Template:
+                    <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainTemplate()"/>
+                </td>
+                <td id="td-template">
+                    <input id="template" type="text"> 
+                </td>
+
+            </tr>
+
+            <tr id="tr-values">
+                <td>Values:
+                    <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainValue()"/>
+                </td>
+                <td id="td-values">
+                    <textarea id="values" style="height:180px;width: 500px;"></textarea>
+            </td>
+    
+            </tr>
+
+            <tr id="tr-comments">
+                    <td>(optional)Comments:
+                        <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainComments()"/>
+                    </td>
+                    <td id="td-comments">
+                        <input id="comments" type="text"> 
+                    </td>
+    
+            </tr>
+
+            <tr>
+                <td colspan="2" style="text-align: center;">
+                    <button id="submit2" onclick="generateTdf()">Submit</button>
+                    &nbsp;&nbsp;&nbsp;<button id="add2" onclick="addProperty()">Add</button>
+                    &nbsp;&nbsp;&nbsp;<button id="valueexample" onclick="showvalueexample()">Example</button>
+                    &nbsp;&nbsp;&nbsp;<button id="backToUserType" onclick="backToUserType()"> Back</button><br>
+                </td>
+            </tr>
+        </table>
+        <font color="blue"><p id="tips" style="text-align:center"></p></font>
+    </div>
+</body>
+
+</html>

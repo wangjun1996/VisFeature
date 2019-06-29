@@ -1,0 +1,67 @@
+<!-- 序列可视化模式1-曲线图页面，左侧显示资源管理器，右侧显示曲线图 -->
+<!DOCTYPE html>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Sequence Visualization 1 ( Single sequence )</title>
+  <link rel="stylesheet" href="css/app.css" />
+  <link rel="StyleSheet" href="css/dtree.css" />
+  <!--jquery-->
+  <!-- <script src="http://code.jquery.com/jquery-1.8.0.min.js"></script> -->
+  <script src="js/jquery-1.8.0.min.js"></script>
+  <!--菜单栏-->
+  <script src="js/appMenu.js"></script>
+  <!--div宽度可调节-->
+  <script src="js/divWidthResize.js"></script>
+  <!--dtree-->
+  <script src="js/dtree.js"></script>
+  <!-- echarts绘图控件 -->
+  <script src="js/echarts.js"></script>
+  <script>
+      // 保持用户拖动的 left div 位置,注意：styleSheets[0]表示第1个css文件，cssRules[3]表示第3条规则,故顺序不能错
+      document.styleSheets[0].cssRules[3].style.width = require('electron').remote.getGlobal('sharedObject').leftDivWidth;
+      
+      // 当浏览器大小变化时，刷新页面使曲线图自适应窗口大小
+      $(window).resize(function () {          
+        location.reload();
+      });
+  </script>
+</head>
+
+<body>
+  <div style="height: 99%">
+
+    <div id="left" class="left">
+
+      <div class="dtree">
+        <p><b>Resource Manager</b></p>
+        <p><a href="javascript: d.openAll();">open all</a> | <a href="javascript: d.closeAll();">close all</a></p>
+        <!--在页面左侧显示文件列表-->
+        <script type="text/javascript" src="js/showFile.js"></script>
+      </div>
+    </div>
+
+    <div id="rightbar" class="rightbar">
+    </div>
+
+    <div id="main-area" class="main-area" style="height: 99%">
+      <hidden id="top" class="top">
+        <hidden hidden='hidden' id="FilePathLabel" class="file-path-label"></hidden>
+      </hidden>
+
+      <div class="selectMode">
+          <button onclick="backToMainPage()">Main Page</button>
+      </div>
+
+      <div id="diagram" class="diagram">
+        <script src="js/showEchartsMode.js"></script>
+      </div>
+    </div>
+
+  </div>
+</body>
+
+</html>

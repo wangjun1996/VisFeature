@@ -1,0 +1,8 @@
+SetNotation("DIDNA")
+AddModule("PSE")
+AddProperty("DD0033")
+AddProperty("DD0034")
+AddProperty("DD0035")
+AddProperty("DD0036")
+AddProperty("DD0037")
+AddProperty("DD0038")

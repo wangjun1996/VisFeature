@@ -1,0 +1,21 @@
+{
+  "name": "VisFeature",
+  "version": "1.0.0",
+  "description": "VisFeature Project",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "windows": "electron-packager ./ VisFeature --platform=win32 --arch=x64 --icon=img/icon.ico --out=./windows-out --electron-version=4.0.5",
+    "linux": "electron-packager ./ VisFeature --platform=linux --arch=x64 --out=./linux-out --electron-version=4.0.5",
+    "all": "electron-packager ./ VisFeature --platform=all --arch=all --out=./all-out --electron-version=4.0.5"
+  },
+  "repository": "https://github.com/...",
+  "keywords": [
+    "UltraPse", "clustalw2", "R", "Echarts"
+  ],
+  "author": "WangJun et al.",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^4.0.5"
+  }
+}

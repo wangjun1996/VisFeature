@@ -1,0 +1,156 @@
+<!-- 选择序列ID和理化性质的页面 -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compa<tible" content="ie=edge">
+    <title>Visualization Mode 1 - set parameters</title>
+    <link rel="stylesheet" href="css/app.css" />
+    <!--jquery-->
+    <script src="js/jquery-1.8.0.min.js"></script>
+    <script src="js/selectSeqMode.js"></script>
+    <script type="text/javascript">
+
+        // 就绪后，给主进程发送同步消息，返回给变量sequenceDic，在等待主进程返回中，会阻止其他操作        
+        const ipcRenderer = require('electron').ipcRenderer;
+        var sequenceDic = ipcRenderer.sendSync('selectSeqHtmlready', '<ready> selectSeqMode1.html is ready')
+        var seqKeys = getKeysFromObject(sequenceDic);
+        var seqId = document.getElementById('sequenceId')
+
+        if (seqId != undefined && seqId != null) {
+            let dictionary = { 'seqId': seqId.value, 'sequenceDic': sequenceDic }
+        }
+
+        // 从json格式的object对象中获得所有key，返回由key组成的数组
+        function getKeysFromObject(object) {
+            let keys = [];
+            for (var p1 in object) {
+                if (object.hasOwnProperty(p1))
+                    keys.push(p1);
+            }
+            return keys;
+        }
+    </script>
+    <style>
+        td {
+            height: 20px;
+            text-align: left;
+            /* border: 1px solid gray;  */
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <table class="selectSeqTable">
+            <tr>
+                <td>
+                    <font size="3">Select Sequence ID:&nbsp;&nbsp;&nbsp;</font><select id="sequenceId"
+                        onchange=''></select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <font size="3">Select Sequence Type:&nbsp;&nbsp;&nbsp;</font>
+                    <select id="sequenceType" onchange="changeType()">
+                        <option>Protein</option>
+                        <option>diDNA</option>
+                        <option>triDNA</option>
+                        <option>diRNA</option>
+                    </select>
+                </td>
+            </tr>
+
+            <tr id="tr-valueType" style="display:none">
+                <td>
+                    <font size="3">Select type of values of Physicochemical Properties:&nbsp;&nbsp;&nbsp;</font>
+                    <select id="valueType" onchange="changeValueType()">
+                        <option value="standard">Values after standard conversion</option>
+                        <option value="normal">Values without standard conversion</option>
+                    </select>
+                </td>
+            </tr>
+
+            <table id="checkboxes" class="multipleSelectTable">
+            </table>
+
+            <script type="text/javascript">
+                addSequenceId(seqKeys);
+
+                // 为下拉框添加内容（序列的ID），data：数组
+                function addSequenceId(data) {
+                    let sel = document.getElementById('sequenceId');
+                    let str = "";
+                    for (let i = 0; i < data.length; i++) {
+                        //拼接str，把data里面的所有值都放在option标签里
+                        str += '<option>' + data[i] + '</option>';
+                    }
+                    sel.innerHTML = str;
+                }
+
+                addcheckbox(propertyKeys);
+
+                // 添加多选框（序列的理化性质ID），data：数组
+                function addcheckbox(data) {
+                    let sel = document.getElementById('checkboxes');
+                    let str = "";
+                    str += '<tr><td colspan="4"><font size="3">Select Physicochemical Properties:</font></td></tr>';
+                    for (let i = 0; i < data.length; i++) {
+                        if (i % 4 == 0) str += '<tr align="left">';
+                        str += '<td><input type="checkbox" class="checkbox" name="cks" value="' + data[i] + '">' + data[i] + '</input></td>';
+                        //if(i%4 == 0) str += '</tr>';
+                    }
+                    str += '</tr>';
+                    sel.innerHTML = str;
+                }
+            </script>
+
+
+            <input type="hidden" name="dictionary" value=dictionary />
+
+            <tr>
+                <div id="physicochemicalProperties"></div>
+            </tr>
+
+            <tr>
+                <td><button style="display:block;margin:0 auto" onclick="jump()">Submit</button></td>
+            </tr>
+            <br />
+            <script type="text/javascript">
+                function jump() {
+                    var str = [];
+                    var r = document.getElementsByName("cks");
+                    var sequenceId = document.getElementById("sequenceId").value;
+                    var sequenceType = $("#sequenceType").val();
+                    for (var i = 0; i < r.length; i++) {
+                        if (r[i].checked) {
+                            //获取选中的checkbox的值
+                            str.push(r[i].value);
+                        }
+                    }
+                    if (sequenceId == '') {
+                        alert("Please choose a sequence ID");
+                        return;
+                    }
+                    if (str.length < 1) {
+                        alert("Please choose at least 1 physicochemical property.");
+                        return;
+                    }
+                    if (str.length > 10) {
+                        alert("The maximum number of physicochemical properties available is 10.");
+                        return;
+                    }
+                    // 通知主进程 selectSeqMode1.html 已关闭，将dictionary发送给主进程，让主进程进行后续操作
+                    let dictionary = { 'seqId': sequenceId, 'sequenceDic': sequenceDic, 'checked': str, 'sequenceType': sequenceType, 'valueType': $("#valueType").val() }
+                    console.log(dictionary);
+                    ipcRenderer.send('selectSeq-close', dictionary);
+                    window.close();
+                }
+            </script>
+        </table>
+    </div>
+</body>
+
+</html>
