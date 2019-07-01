@@ -153,6 +153,7 @@ function resetParameter() {
   generatePhy();
 }
 
+
 // 根据序列类型改变Mode下拉框的值
 function changeMode() {
   let sequenceType = document.getElementById("sequenceType").value;
@@ -169,8 +170,8 @@ function changeMode() {
       break;
 
     case 'Protein':
-      // arr = ['Composition based', 'Covariance based', 'Pseudo-factor based', 'Evolution based', 'Correlation coefficients based'];
-      arr = ['Composition based', 'Covariance based', 'Pseudo-factor based', 'Correlation coefficients based'];
+      arr = ['Composition based', 'Covariance based', 'Pseudo-factor based', 'Evolution based', 'Correlation coefficients based'];
+      // arr = ['Composition based', 'Covariance based', 'Pseudo-factor based', 'Correlation coefficients based'];
       generateHtml(arr);
       break;
   }
@@ -251,14 +252,14 @@ function changeNote() {
           $("#td-lambda").html("λ:<img src='./img/explanation.jpg'  alt='explain' style='height:18px;width:18px;cursor:pointer' onclick='explainLambda()'/>");
 
           break;
-        // case 'evo':
-        //   arr = ['PsePSSM'];
-        //   generateNote(arr);
-        //   $("#td-lambda").text("λ:");
-        //   break;
+        case 'evo':
+          arr = ['PsePSSM'];
+          generateNote(arr);
+          $("#td-lambda").text("λ:");
+          break;
         case 'cor':
-          // arr = ['Moran auto-correlation', 'Normalized Moreu-Broto auto correlation', 'Geary auto correlation', 'Composition-Transition-Distributions'];
-          arr = ['Composition-Transition-Distributions'];
+          arr = ['Moran auto-correlation', 'Normalized Moreu-Broto auto correlation', 'Geary auto correlation', 'Composition-Transition-Distributions'];
+          // arr = ['Composition-Transition-Distributions'];
           generateNote(arr);
           $("#td-lambda").text("max_delay:");
           break;
@@ -268,6 +269,10 @@ function changeNote() {
   controlShowOrHide("showProperty", "table-row");
   $("#btnadddprop").css("display", "inline");
   $("#showSelfdefinedProp").css("display", "inline");
+  if(mode == 'cor'){
+    $("#btnadddprop").css("display", "none");
+    $("#showSelfdefinedProp").css("display", "none");
+  }
   $("#phyprop").text("Physicochemical properties:");
   let note = document.getElementById("note").value;
   if (note == "DNA compositions" || note == "DNA-Di-nucleotide compositions" || note == "DNA-Tri-nucleotide compositions" || note == "RNA compositions" || note == "Amino acid compositions" || note == "RNA-Di-nucleotide compositions" || note == "PsePSSM") {
@@ -319,6 +324,7 @@ function changeNote() {
     case 'RNA-Di-nucleotide Auto-cross covariance':
     case 'Auto covariance':
     case 'Cross covariance':
+    case 'PsePSSM':
       controlShowOrHide("tr-lambda", "table-row");
       controlShowOrHide("tr-omega", "none");
       break;
@@ -367,6 +373,8 @@ function changeNote2() {
       $("#td-lambda").html("max delay:<img src='./img/explanation.jpg'  alt='explain' style='height:18px;width:18px;cursor:pointer' onclick='explainMaxDelay()'/>");
       controlShowOrHide("tr-lambda", "table-row");
       controlShowOrHide("tr-omega", "none");
+      $("#btnadddprop").css("display", "none");
+      $("#showSelfdefinedProp").css("display", "none");
       break;
     case 'Quasi-sequence order':
       $("#td-lambda").html("max delay:<img src='./img/explanation.jpg'  alt='explain' style='height:18px;width:18px;cursor:pointer' onclick='explainMaxDelay()'/>");
@@ -395,6 +403,7 @@ function changeNote2() {
     case 'Auto covariance':
     case 'Cross covariance':
     case 'Auto-cross covariance':
+    case 'PsePSSM':
       controlShowOrHide("tr-lambda", "table-row");
       controlShowOrHide("tr-omega", "none");
       break;
@@ -555,7 +564,7 @@ function compute(type) {
     alert('The output file: "' + openFileName + '" already exists.\nPlease modify the path of the output file!');
     return;
   }
-
+  
   if (runExecSync(command, path.join(__dirname, 'UltraPse')) != "error") {
     try {
       var data = fs.readFileSync(openFileName, 'utf-8');  //同步读取UltraPse计算得出的结果
@@ -796,7 +805,8 @@ function computesd() {
   }
   else if (upsePara.note == "PsePSSM") {
     var luapath = path.join(__dirname, 'UltraPse/input_tdfs', 'psepssm.lua');
-    var command = 'upse -v -i ' + upsePara.inputFile + ' -u ' + luapath + ' -l ' + upsePara.lambda + ' -f ' + upsePara.outputFormat + ' -o ' + path.join(upsePara.outputPath, 'VisFeatureOutput.txt');
+    // var command = 'upse -v -i ' + upsePara.inputFile + ' -u ' + luapath + ' -l ' + upsePara.lambda + ' -f ' + upsePara.outputFormat + ' -o ' + path.join(upsePara.outputPath, 'VisFeatureOutput.txt');
+    var command = 'upse -v -i ' + upsePara.inputFile + ' -u ' + 'psepssm.lua' + ' -l ' + upsePara.lambda + ' -f ' + upsePara.outputFormat + ' -o ' + path.join(upsePara.outputPath, 'VisFeatureOutput.txt');
   }
   else if (upsePara.note == "Moran auto-correlation") {
     var obj = document.getElementsByName("choosemode");
@@ -816,11 +826,13 @@ function computesd() {
       showPhy();
       return;
     }
+
     var str = "local propy_quasi = MoranCoef(pr_seq, pseb_opt_l, \"" + check_val[0] + "\")";
     var luapath = path.join(__dirname, 'UltraPse/input_tdfs', 'pseb-propy.lua');
     var temppath = path.join(__dirname, 'UltraPse/input_tdfs', 'temp.lua');
     var zz = fs.readFileSync(luapath, 'utf8').split('\n');
-    zz.splice(187, 0, str);
+    zz.splice(171, 0, "  AddProperty(" + "\"" + check_val[0] + "\"" + ") \n ");
+    zz.splice(188, 0, str);
     fs.writeFileSync(temppath, zz.join('\n'), 'utf8');
     var command = 'upse -v -i ' + upsePara.inputFile + ' -u ' + temppath + ' -l ' + upsePara.lambda + ' -f ' + upsePara.outputFormat + ' -o ' + path.join(upsePara.outputPath, 'VisFeatureOutput.txt');
   }
@@ -846,7 +858,8 @@ function computesd() {
     var luapath = path.join(__dirname, 'UltraPse/input_tdfs', 'pseb-propy.lua');
     var temppath = path.join(__dirname, 'UltraPse/input_tdfs', 'temp.lua');
     var zz = fs.readFileSync(luapath, 'utf8').split('\n');
-    zz.splice(187, 0, str);
+    zz.splice(171, 0, "  AddProperty(" + "\"" + check_val[0] + "\"" + ") \n ");
+    zz.splice(188, 0, str);
     fs.writeFileSync(temppath, zz.join('\n'), 'utf8');
     var command = 'upse -v -i ' + upsePara.inputFile + ' -u ' + temppath + ' -l ' + upsePara.lambda + ' -w ' + upsePara.omega + ' -f ' + upsePara.outputFormat + ' -o ' + path.join(upsePara.outputPath, 'VisFeatureOutput.txt');
   }
@@ -872,7 +885,8 @@ function computesd() {
     var luapath = path.join(__dirname, 'UltraPse/input_tdfs', 'pseb-propy.lua');
     var temppath = path.join(__dirname, 'UltraPse/input_tdfs', 'temp.lua');
     var zz = fs.readFileSync(luapath, 'utf8').split('\n');
-    zz.splice(187, 0, str);
+    zz.splice(171, 0, "  AddProperty(" + "\"" + check_val[0] + "\"" + ") \n ");
+    zz.splice(188, 0, str);
     fs.writeFileSync(temppath, zz.join('\n'), 'utf8');
     var command = 'upse -v -i ' + upsePara.inputFile + ' -u ' + temppath + ' -l ' + upsePara.lambda + ' -w ' + upsePara.omega + ' -f ' + upsePara.outputFormat + ' -o ' + path.join(upsePara.outputPath, 'VisFeatureOutput.txt');
   }
@@ -1154,7 +1168,7 @@ function clearLua() {
   var _path = path.join(__dirname, "UltraPse/input_tdfs", "userDefined.lua");
   fs.writeFile(_path, "", function (err) {
     if (!err)
-      console.log("clear the lua");
+      console.log("clear the lua"); 
   });
 }
 //全局变量，用来保存当前添加的性质的名字
@@ -1841,4 +1855,3 @@ function showvalueexample2() {
 
   document.getElementById("PropObj").value = "EXAMPLE2";
 }
-
