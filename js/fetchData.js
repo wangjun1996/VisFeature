@@ -276,7 +276,7 @@ function exampleParameter() {
             case 'ID':
                 $("#fetchTextArea").val("P99999,P12345,P62979,P62258,ALBU_HUMAN");
                 let seqArr = $("#fetchTextArea").val().split(",");
-                $("#priority").val() == "speedPriority" ? $("#timeLabel").html((seqArr.length/10).toFixed(2)) : $("#timeLabel").html((seqArr.length/3).toFixed(2));
+                $("#priority").val() == "speedPriority" ? $("#timeLabel").html((seqArr.length / 10).toFixed(2)) : $("#timeLabel").html((seqArr.length / 3).toFixed(2));
                 break;
             case 'Query':
                 $("#fetchTextArea").val("organism:9606+AND+antigen&format=fasta&limit=500");
@@ -289,7 +289,7 @@ function exampleParameter() {
                 $("#fetchTextArea").val("28864546,28800981,AABR02115360.1");
                 let seqArr = $("#fetchTextArea").val().split(",");
                 $("#priority").val() == "speedPriority" ? $("#timeLabel").html((seqArr.length / 1.6).toFixed(2)) : $("#timeLabel").html((seqArr.length / 1.2).toFixed(2));
-                
+
                 break;
             case 'Query':
                 $("#fetchTextArea").val("db=nuccore&id=21614549&strand=1&seq_start=1&seq_stop=500&rettype=fasta&retmode=text");
@@ -340,20 +340,20 @@ function changePriority() {
             case 'Uniprot':
                 switch ($("#priority").val()) {
                     case 'speedPriority':
-                        $("#timeLabel").html((seqArr.length/10).toFixed(2));
+                        $("#timeLabel").html((seqArr.length / 10).toFixed(2));
                         break;
                     case 'orderPriority':
-                        $("#timeLabel").html((seqArr.length/3).toFixed(2));
+                        $("#timeLabel").html((seqArr.length / 3).toFixed(2));
                         break;
                 }
                 break;
             case 'GenBank':
                 switch ($("#priority").val()) {
                     case 'speedPriority':
-                        $("#timeLabel").html((seqArr.length/1.6).toFixed(2));
+                        $("#timeLabel").html((seqArr.length / 1.6).toFixed(2));
                         break;
                     case 'orderPriority':
-                        $("#timeLabel").html((seqArr.length/1.2).toFixed(2));
+                        $("#timeLabel").html((seqArr.length / 1.2).toFixed(2));
                         break;
                 }
                 break;
@@ -369,6 +369,31 @@ function explainFetchPriority() {
 // 关于Fetch Input的提示
 function explainFetchInput() {
     alert('The following resources may be useful when you write query expression. \nHow to fetch data by Uniprot API : https://www.uniprot.org/help/api \nHow to fetch data by NCBI API : https://www.ncbi.nlm.nih.gov/home/develop/api/');
+}
+
+// 保存抓取到的数据到本地
+function saveData() {
+    if ($("#fetchResultTextArea").val().length != 0) {
+        const remote = require('electron').remote;
+        const file = remote.dialog.showSaveDialog(remote.getCurrentWindow(), {
+            filters: [
+                { name: 'Fasta format', extensions: ['fas'] },
+                { name: 'Text format', extensions: ['txt'] }]
+        });
+        if (file) {
+            saveText($("#fetchResultTextArea").val(), file);
+        }
+    }
+    else{
+        alert("Save failed : The result of the fetch is empty. Please fetch first and then save it.");
+    }
+}
+
+//保存文本内容到文件(同步)
+function saveText(text, file) {
+    const fs = require('fs');
+    fs.writeFileSync(file, text);
+    alert("Save successfully.\nLocation: " + file);
 }
 
 
