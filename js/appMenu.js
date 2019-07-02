@@ -28,7 +28,7 @@ const mainMenuTemplate = [
         accelerator: process.platform == 'darwin' ? 'Command+Shift+O' : 'Ctrl+Shift+O',
         click: function (item, focusedWindow) {
           const open2 = askSaveIfNeed();
-          if (open2 != 0 && open2 != 1) return;//若取消这保留在当前界面
+          if (open2 != 0 && open2 != 1) return;//若取消则保留在当前界面
           if (focusedWindow) {
             selectFolder = dialog.showOpenDialog({
               title: 'Please choose a folder',
@@ -37,6 +37,17 @@ const mainMenuTemplate = [
             if (selectFolder != undefined && selectFolder != null && selectFolder != "") {
               window.location.href = encodeURI("index.html?selectFolder=" + selectFolder);
             }
+          }
+        }
+      },
+      {
+        label: 'Open Example Folder',
+        accelerator: process.platform == 'darwin' ? 'Command+Shift+E' : 'Ctrl+Shift+E',
+        click: function (item, focusedWindow) {
+          const open3 = askSaveIfNeed();
+          let exampleFolder = path.join(__dirname, 'test');
+          if (exampleFolder != undefined && exampleFolder != null && exampleFolder != "") {
+            window.location.href = encodeURI("index.html?selectFolder=" + exampleFolder);
           }
         }
       },
@@ -96,7 +107,7 @@ const mainMenuTemplate = [
     ]
   },
   {
-    label: 'Tool',
+    label: 'Visualization',
     submenu: [
       {
         label: 'Main Page',
@@ -175,7 +186,7 @@ if (isHtml('index.html')) {
     },
     {
       // 单击该按钮后，输入参数(一条序列，多个理化性质)，生成曲线图
-      label: 'Visualization Mode 1 ( Single sequence )',
+      label: 'Single Sequence Mode',
       accelerator: process.platform == 'darwin' ? 'Command+D' : 'Ctrl+D',
       click() {
         if (checkTextArea() != "textArea error")
@@ -184,7 +195,7 @@ if (isHtml('index.html')) {
     },
     {
       // 单击该按钮后，输入参数(多条序列，多个理化性质)，生成曲线图
-      label: 'Visualization Mode 2 ( Multiple sequences )',
+      label: 'Multiple sequences Mode',
       accelerator: process.platform == 'darwin' ? 'Command+E' : 'Ctrl+E',
       click() {
         // 将当前textArea的内容保存到/clustalw2/input.fas，后面读取该文件进行多序列比对
@@ -204,7 +215,7 @@ if (isHtml('index.html')) {
       click() {
         // 将当前textArea的内容保存到/UltraPse/input.fas，后面使用该文件作为输入文件调用UltraPse进行计算
         saveText(document.getElementById('textArea').value, path.join(__dirname, 'UltraPse', 'input.fas'));
-        createDiagram('computeAndVis.html', { width: 800, height: 360, autoHideMenuBar: true });
+        createDiagram('computeAndVis.html', { width: 1000, height: 360, autoHideMenuBar: true });
       }
     }
   );
@@ -278,8 +289,8 @@ function saveCurrentDoc() {
   if (!require('electron').remote.getGlobal('sharedObject').theFile.name) {
     const file = remote.dialog.showSaveDialog(remote.getCurrentWindow(), {
       filters: [
-        { name: 'Fasta Files', extensions: ['fas', 'fasta'] },
-        { name: 'All Files', extensions: ['*'] }]
+        { name: 'Fasta format', extensions: ['fas'] },
+        { name: 'Text format', extensions: ['txt'] }]
     });
     if (file) {
       document.getElementById("FilePathLabel").innerText = file;
@@ -340,6 +351,7 @@ function readText(file) {
 
 //打开文件
 function openFile() {
+  const fs = require('fs');
   const files = remote.dialog.showOpenDialog(remote.getCurrentWindow(), {
     title: 'Please choose a file in fasta format',
     filters: [
@@ -349,17 +361,29 @@ function openFile() {
   });
   //更新和显示当前打开文件信息
   if (files) {
-    document.getElementById("FilePathLabel").innerText = files[0];
-    const txtRead = readText(files[0]);
-    require('electron').remote.getGlobal('sharedObject').theFile.name = files[0];
-    require('electron').remote.getGlobal('sharedObject').theFile.value = txtRead;
-    require('electron').remote.getGlobal('sharedObject').theFile.isSaved = true;
-    if (textArea == null) {
-      window.location.href = encodeURI("index.html?selectFile=" + files[0]);
-    }
-    else {
-      textArea.value = txtRead;
-    }
+    fs.stat(files[0], function(err,stats){
+      if(err){
+        alert(err);
+        return;
+      }
+      if(stats.size > 5242880){
+        alert("The file is too large, it must be less than 5MB.");
+        return;
+      }
+      else{
+        document.getElementById("FilePathLabel").innerText = files[0];
+        const txtRead = readText(files[0]);
+        require('electron').remote.getGlobal('sharedObject').theFile.name = files[0];
+        require('electron').remote.getGlobal('sharedObject').theFile.value = txtRead;
+        require('electron').remote.getGlobal('sharedObject').theFile.isSaved = true;
+        if (textArea == null) {
+          window.location.href = encodeURI("index.html?selectFile=" + files[0]);
+        }
+        else {
+          textArea.value = txtRead;
+        }
+      }
+    })
   }
 }
 
