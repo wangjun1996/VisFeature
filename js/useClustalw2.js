@@ -67,12 +67,14 @@ function ifSelect(id){
 
 // 判断用户选择的序列ID中是否存在多条序列同名
 function SameName(idArray) {
-    let s = idArray.join(",") + ",";
-    for (let i = 0; i < idArray.length; i++) {
-        if (s.replace(idArray[i] + ",", "").indexOf(idArray[i] + ",") > -1) {
+    console.log(idArray);
+    var hash = {};
+    for (var i in idArray) {
+        if (hash[idArray[i]]){
             alert("Unable to call clustalw2, because multiple sequences found with same name.\n(found " + idArray[i] + " at least twice)");
-            return true;
+            return true; 
         }
+        hash[idArray[i]] = true;
     }
     return false;
 }
