@@ -10,6 +10,23 @@
     <!--jquery-->
     <script src="js/jquery-1.8.0.min.js"></script>
     <script src="js/selectSeqMode.js"></script>
+    <style type="text/css">
+        td {
+            height: 20px;
+            width: 50%;
+            padding: 5px;
+            text-align: left;
+            border: 1px solid rgb(103, 172, 218);
+        }    
+        #modeSelect
+        {
+            height: 15px;
+            text-align: left;
+            border: none;
+            width: 10%;
+            /* font-size: 11pt; */
+        }
+    </style>
     <script type="text/javascript">
 
         // 就绪后，给主进程发送同步消息，返回给变量sequenceDic，在等待主进程返回中，会阻止其他操作
@@ -32,21 +49,60 @@
             return keys;
         }
     </script>
-    <style>
-        td {
-            height: 20px;
-            text-align: left;
-            /* border: 1px solid gray; */
-        }
-    </style>
 </head>
 
 <body>
     <div>
+        <table class="selectSeqMode2Table">
+            <tr id="tr-fistLine">
+                <td>
+                    <font size="3">Select Sequence ID:</font>
+                </td>
+                <td>
+                    <button onclick="showSeqId()" style="width: 60px">choose</button>
+                    &nbsp;&nbsp;&nbsp;<button onclick="hideSeqId()" style="width: 60px" >hide</button>
+                </td>
+            </tr>
 
-        <table id="sequenceId" class="selectSeqTable"></table>
-        <table id="checkboxes" class="multipleSelectTable"></table>
+            <tr id="tr-sequenceId">
+                <td colspan="2">
+                    <table id="sequenceId" frame="void"></table>
+                </td>
+            <tr  id="tr-sequenceTypeText">
+                <td>
+                    <font size="3">Select Sequence Type:&nbsp;&nbsp;&nbsp;</font>
+                </td>
+                <td>
+                    <select id="sequenceType" onchange="changeType()"><option>Protein</option><option>diDNA</option><option>triDNA</option><option>diRNA</option></select>
+                </td>
+            </tr>
 
+            <tr id="tr-valueType" style="display:none">
+                <td>
+                    <font size="3">Select type of values of Physicochemical Properties:&nbsp;&nbsp;&nbsp;</font>
+                </td>
+                <td>
+                    <select id="valueType" onchange="changeValueType()"><option value="standard">Values after standard conversion</option><option value="normal">Values without standard conversion</option></select>
+                </td>
+            </tr>
+
+            <tr  id="tr-propertyText">
+                <td>
+                    <font size="3">Select Physicochemical Properties:<font/>
+                </td>
+                <td>
+                    <button onclick="showProperty()" style="width: 60px">choose</button>
+                    &nbsp;&nbsp;&nbsp;<button onclick="hideProperty()" style="width: 60px" >hide</button>
+                </td>
+            </tr>
+
+            <tr id="tr-property" style="display:none">
+                <td colspan="2">
+                    <table id="checkboxes" frame="void"></table>
+                </td>
+            </tr>
+
+        </table>
 
         <script type="text/javascript">
             addSequenceId(seqKeys);
@@ -55,17 +111,12 @@
             function addSequenceId(data) {
                 let sel = document.getElementById('sequenceId');
                 let str = "";
-                str += '<tr><td colspan="4"><font size="3">Select Sequence ID:&nbsp;&nbsp;&nbsp;</font></td></tr>';
+                // str += '<tr></tr>';
                 for (let i = 0; i < data.length; i++) {
                     if (i % 4 == 0) str += '<tr align="left">';
-                    str += '<td><input type="checkbox" name="sid"  value="' + data[i] + '">' + data[i] + '</input></td>';
+                    str += '<td id="modeSelect" colspan="2"><input type="checkbox" name="sid"  value="' + data[i] + '">' + data[i] + '</input></td>';
                 }
-                for (let j = 0; j< 4 - data.length % 4 ; j++){
-                    if (data.length % 4 == 0)   break;
-                    str += '<td width="230px"></td>'
-                }
-                str += '<tr><td colspan="4"><font size="3">Select Sequence Type:&nbsp;&nbsp;&nbsp;</font><select id="sequenceType" onchange="changeType()"><option>Protein</option><option>diDNA</option><option>triDNA</option><option>diRNA</option></select></td></tr>'
-                str += '<tr id="tr-valueType" style="display:none"><td colspan="4"><font size="3">Select type of values of Physicochemical Properties:&nbsp;&nbsp;&nbsp;</font><select id="valueType" onchange="changeValueType()"><option value="standard">Values after standard conversion</option><option value="normal">Values without standard conversion</option></select></td></tr>'
+                str += '</tr>';
                 //把拼接好的str放到select标签里
                 sel.innerHTML = str;
             }
@@ -75,14 +126,30 @@
             function addcheckbox(data) {
                 let sel = document.getElementById('checkboxes');
                 let str = "";
-                str += '<tr><td colspan="4"><font size="3">Select Physicochemical Properties:<font/></td></tr>';
+                // str += '<tr></tr>';
                 for (let i = 0; i < data.length; i++) {
                     if (i % 4 == 0) str += '<tr align="left">';
-                    str += '<td><input type="checkbox" name="cks" value="' + data[i] + '">' + data[i] + '</input></td>';
+                    str += '<td id="modeSelect" colspan="2"><input type="checkbox" name="cks" value="' + data[i] + '">' + data[i] + '</input></td>';
                     //if(i%4 == 0) str += '</tr>';
                 }
                 str += '</tr>';
                 sel.innerHTML = str;
+            }
+            
+            function showSeqId(){
+                $("#tr-sequenceId").css("display", "table-row");
+            }
+
+            function hideSeqId() {
+                $("#tr-sequenceId").css("display", "none");
+            }
+
+            function showProperty() {
+                $("#tr-property").css("display", "table-row");
+            }
+
+            function hideProperty() {
+                $("#tr-property").css("display", "none");
             }
         </script>
 
@@ -93,6 +160,7 @@
             <div id="physicochemicalProperties"></div>
         </tr>
 
+        <br>
         <tr>
             <td><button style="display:block;margin:0 auto" onclick="jump()">Submit</button></td>
         </tr>
@@ -121,18 +189,22 @@
                 }
                 if (sidarr.length < 2) {
                     alert("Please choose at least 2 sequence ID.");
+                    $("#tr-sequenceId").css("display", "table-row");
                     return;
                 }
                 if (sidarr.length > 10) {
                     alert("The maximum number of sequence ID available is 10.");
+                    $("#tr-sequenceId").css("display", "table-row");
                     return;
                 }
                 if (arr.length < 1) {
                     alert("Please choose at least 1 physicochemical property.");
+                    $("#tr-property").css("display", "table-row");
                     return;
                 }
                 if (arr.length > 10) {
                     alert("The maximum number of physicochemical properties available is 10.");
+                    $("#tr-property").css("display", "table-row");
                     return;
                 }
                 // 通知主进程 selectSeqMode2.html 已关闭，将dictionary发送给主进程，让主进程进行后续操作
