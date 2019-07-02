@@ -804,6 +804,8 @@ function computesd() {
     var command = 'upse -v -i ' + upsePara.inputFile + ' -u ' + temppath + ' -l ' + upsePara.lambda + ' -w ' + upsePara.omega + ' -f ' + upsePara.outputFormat + ' -o ' + path.join(upsePara.outputPath, 'VisFeatureOutput.txt');
   }
   else if (upsePara.note == "PsePSSM") {
+    if(!checkPsePSSMdb())
+      return;
     var luapath = path.join(__dirname, 'UltraPse/input_tdfs', 'psepssm.lua');
     // var command = 'upse -v -i ' + upsePara.inputFile + ' -u ' + luapath + ' -l ' + upsePara.lambda + ' -f ' + upsePara.outputFormat + ' -o ' + path.join(upsePara.outputPath, 'VisFeatureOutput.txt');
     var command = 'upse -v -i ' + upsePara.inputFile + ' -u ' + 'psepssm.lua' + ' -l ' + upsePara.lambda + ' -f ' + upsePara.outputFormat + ' -o ' + path.join(upsePara.outputPath, 'VisFeatureOutput.txt');
@@ -959,12 +961,29 @@ function computesd() {
   if (fs.existsSync(openFileName) && upsePara.outputPath == "")
     deleteFile(openFileName);
 }
+
 //提醒用户至少选择一个性质
 function alert_to_choose_one(qq) {
   var bollean = (qq != "" || definePropertyonly || userdefine);
   if (!bollean) { alert("Please choose or add at least 1 Physicochemical Property."); showPhy(); return true; }
   else return false;
 
+}
+
+//检查PsePSSM模式所需的数据库文件是否存在，若不存在，提示用户
+function checkPsePSSMdb(){
+  const fs= require("fs");
+  const path= require("path");
+  let phrPath = path.join(__dirname, 'UltraPse', 'uniprot.phr');
+  let pinPath = path.join(__dirname, 'UltraPse', 'uniprot.pin');
+  let psqPath = path.join(__dirname, 'UltraPse', 'uniprot.psq');
+  if(fs.existsSync(phrPath) && fs.existsSync(pinPath) && fs.existsSync(psqPath)){
+    return true;
+  }
+  else{
+    alert("No database was found for searching.\nMake sure the database is propertly configured before executing this sub-mode.\nPlease see user manual for details.");
+    return false;
+  }
 }
 
 var aaindex1Json = readJsonSync(path.join(__dirname, 'txt', 'aaindex566.json'));
@@ -1855,3 +1874,4 @@ function showvalueexample2() {
 
   document.getElementById("PropObj").value = "EXAMPLE2";
 }
+
