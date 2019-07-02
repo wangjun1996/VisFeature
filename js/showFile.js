@@ -11,11 +11,11 @@ if (selectFolder != undefined && selectFolder != 'undefined' && selectFolder != 
     try{
         showDtree();
     }catch(err){
-        alert("111"+err);
+        alert(err);
     }
 }
 
-// 每次单击文件树中的一个文件，在页面右侧上方显示文件内容,在页面右下方显示改变颜色后的序列
+// 每次单击文件树中的一个文件，在页面右侧显示文件内容
 if(selectFolder != null && selectFolder != 'undefined' && selectFolder != "null" && selectFile != null && selectFile != "null" && selectFile != undefined  && selectFile != ""){
     showFileContent();
 }
@@ -89,24 +89,36 @@ function showFileContent(){
          if(arg=='open'){
              const fs=require('fs');
              openFileName = path.join(selectFolder, selectFile);
-             fs.readFile(openFileName, 'utf-8', function(err,data){
-                 if(err){
-                     alert(err);
-                 }
-                 else{
-                     var textArea = document.getElementById("textArea");
-                     var FilePathLabel = document.getElementById("FilePathLabel");
-                     var colorSequence = document.getElementById("colorSequence");
-                     textArea.innerText = data;
-                     FilePathLabel.innerText = openFileName;
-                     require('electron').remote.getGlobal('sharedObject').theFile.name=openFileName;
-                     require('electron').remote.getGlobal('sharedObject').theFile.value=data;
-                     require('electron').remote.getGlobal('sharedObject').theFile.isSaved=true;
-                     visualization();
-                     textArea.focus();
-                 }
-             });
-             require('electron').remote.getGlobal('sharedObject').showfile = "check";
+             fs.stat(openFileName, function(err,stats){
+                if(err){
+                  alert(err);
+                  return;
+                }
+                if(stats.size > 5242880){
+                  alert("The file is too large, it must be less than 5MB.");
+                  return;
+                }
+                else{
+                    fs.readFile(openFileName, 'utf-8', function(err,data){
+                        if(err){
+                            alert(err);
+                        }
+                        else{
+                            var textArea = document.getElementById("textArea");
+                            var FilePathLabel = document.getElementById("FilePathLabel");
+                            var colorSequence = document.getElementById("colorSequence");
+                            textArea.innerText = data;
+                            FilePathLabel.innerText = openFileName;
+                            require('electron').remote.getGlobal('sharedObject').theFile.name=openFileName;
+                            require('electron').remote.getGlobal('sharedObject').theFile.value=data;
+                            require('electron').remote.getGlobal('sharedObject').theFile.isSaved=true;
+                            visualization();
+                            textArea.focus();
+                        }
+                    });
+                    require('electron').remote.getGlobal('sharedObject').showfile = "check";
+                }
+            });
          }
      });   
 }
