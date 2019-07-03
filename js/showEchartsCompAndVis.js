@@ -981,7 +981,7 @@ function checkPsePSSMdb(){
     return true;
   }
   else{
-    alert("No database was found for searching.\nMake sure the database is propertly configured before executing this sub-mode.\nPlease see user manual for details.");
+    alert('No database was found for searching. Please make sure the sequence database for searching is properly configured before executing this sub-mode.\n You should prepare three database files with the prefix "uniprot" in the "VisFeature-win32-x64\\resources\\app\\UltraPse" directory, namely "uniprot.phr", "uniprot.pin" and "uniprot.psq".');
     return false;
   }
 }
