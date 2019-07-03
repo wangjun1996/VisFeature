@@ -10,7 +10,28 @@ let workerProcess;
 var userdefine = false; //标志位，区分用户定义序列和普通序列两种形式，false代表普通序列，true为用户定义
 var existed_prop = [];  //保存添加的理化性质的id，检查是否有所重复，并提示
 var definePropertyonly = false;//标志位，确实是否是仅添加性质，而不定义新序列
-var maxVisualDimension = 30;  //可视化的最大维度
+var maxVisualDimension = 30;  //可视化的默认最大维度
+
+var proteinArr = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y'];
+var dnaArr = ['A', 'C', 'G', 'T'];
+var didnaArr = ["AA","AC","AG","AT","CA","CC","CG","CT","GA","GC","GG","GT","TA","TC","TG","TT"];
+var tridnaArr = ["AAA","AAC","AAG","AAT","ACA","ACC","ACG","ACT","AGA","AGC","AGG","AGT","ATA","ATC","ATG","ATT","CAA","CAC","CAG","CAT","CCA","CCC","CCG","CCT","CGA","CGC","CGG","CGT","CTA","CTC","CTG","CTT","GAA","GAC","GAG","GAT","GCA","GCC","GCG","GCT","GGA","GGC","GGG","GGT","GTA","GTC","GTG","GTT","TAA","TAC","TAG","TAT","TCA","TCC","TCG","TCT","TGA","TGC","TGG","TGT","TTA","TTC","TTG","TTT"];
+var rnaArr = ['A', 'C', 'G', 'U'];
+var dirnaArr = ["AA","AC","AG","AU","CA","CC","CG","CU","GA","GC","GG","GU","UA","UC","UG","UU"];
+
+// 为最大可视化维度下拉框添加item
+function addMaxDimension(){
+  let maxDimension = document.getElementById('maxDimension');
+  let str = "";
+  for(let i = 1; i <= 200; i++){
+    if(i == 30)
+      str += '<option selected>' + i +'</option>';
+    else
+      str += '<option>' + i +'</option>';
+  }
+  maxDimension.innerHTML = str;
+}
+
 // 设置参数对象的值，调用UltraPse计算结果
 function submit() {
   if (checkParameterValid() == "invalid")
@@ -1268,6 +1289,7 @@ function generateTdf() {
 }
 
 function upseVisualization() {
+  maxVisualDimension = $("#maxDimension option:selected").text();
   try {
     if ($("#labelPathLabel").text() == "") {  // 若没有上传序列label文件，弹框提示
       alert("Please Upload a label index file!");
@@ -1348,7 +1370,7 @@ function upseVisMultipleComposition(labelDic, separator) {
   }
 }
 
-// 使用csv格式的结果生成需要的文件：格式为 第一个元素为序列ID,后面为0-30个数字,最后一个为序列的标签。作为R脚本的输入文件
+// 使用csv格式的结果生成需要的文件：格式为 第一个元素为序列ID,后面为数字,最后一个为序列的标签。作为R脚本的输入文件
 function createRfile(labelDic, fileName, mode, separator) {
   const fs = require('fs');
   let resultData = $("#upseResultTextArea").val();
@@ -1356,10 +1378,10 @@ function createRfile(labelDic, fileName, mode, separator) {
   let str = "";
   let dimension = 0;
   if (separator == " ") {
-    resultArr[0].split(separator).length - 4 > maxVisualDimension ? dimension = maxVisualDimension : dimension = resultArr[0].split(separator).length - 4;   // 可视化的向量维度最多为30维，超过则按30维计算
+    resultArr[0].split(separator).length - 4 > maxVisualDimension ? dimension = maxVisualDimension : dimension = resultArr[0].split(separator).length - 4;   // 可视化的向量维度最多为maxVisualDimension维，超过则按maxVisualDimension维计算
   }
   else {
-    resultArr[0].split(separator).length - 2 > maxVisualDimension ? dimension = maxVisualDimension : dimension = resultArr[0].split(separator).length - 2;   // 可视化的向量维度最多为30维，超过则按30维计算
+    resultArr[0].split(separator).length - 2 > maxVisualDimension ? dimension = maxVisualDimension : dimension = resultArr[0].split(separator).length - 2;   // 可视化的向量维度最多为maxVisualDimension维，超过则按maxVisualDimension维计算
   }
   let headerStr = createRfileHeader(resultArr[0], dimension, mode, separator);
   str += headerStr;
@@ -1377,8 +1399,9 @@ function createRfile(labelDic, fileName, mode, separator) {
                 str += `Group:${labelDic[seqId]}`;
                 break;
               }
-              if (featureArr[j].split(":")[0] <= maxVisualDimension)
+              if (parseInt(featureArr[j].split(":")[0]) <= maxVisualDimension){
                 str += featureArr[j].split(":")[1] + ",";
+              }
             }
           }
           if (i != resultArr.length - 1)
@@ -1404,7 +1427,6 @@ function createRfile(labelDic, fileName, mode, separator) {
       break;
 
     case 'MultipleComposition':
-      let arr = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y'];
       if (separator == " ") { // 结果为svm格式
         for (let i = 0; i < resultArr.length; i++) {
           if (resultArr[i] != "") {
@@ -1413,13 +1435,29 @@ function createRfile(labelDic, fileName, mode, separator) {
 
             for (let j = 2; j < featureArr.length - 2; j++) {
               let tempArr = featureArr[j].split(":");
-              if(tempArr[0] <= maxVisualDimension){
+              if(parseInt(tempArr[0]) <= maxVisualDimension){
                 if (j == 2)
                   str += seqId + ",";
                 else
                   str += ",";
-                if (dimension == 20 && $("#sequenceType").val() == 'Protein') 
-                  str += `${tempArr[1]},${arr[tempArr[0] - 1]},Group:${labelDic[seqId]}\n`;
+                if ($("#sequenceType").val() == 'Protein' && $("#note option:selected").text() == 'Amino acid compositions'){ 
+                  str += `${tempArr[1]},${proteinArr[tempArr[0] - 1]},Group:${labelDic[seqId]}\n`;
+                }
+                else if($("#sequenceType").val() == 'DNA' && $("#note option:selected").text() == 'DNA compositions'){
+                  str += `${tempArr[1]},${dnaArr[tempArr[0] - 1]},Group:${labelDic[seqId]}\n`;
+                }
+                else if($("#sequenceType").val() == 'DNA' && $("#note option:selected").text() == 'DNA-Di-nucleotide compositions'){
+                  str += `${tempArr[1]},${didnaArr[tempArr[0] - 1]},Group:${labelDic[seqId]}\n`;
+                }
+                else if($("#sequenceType").val() == 'DNA' && $("#note option:selected").text() == 'DNA-Tri-nucleotide compositions'){
+                  str += `${tempArr[1]},${tridnaArr[tempArr[0] - 1]},Group:${labelDic[seqId]}\n`;
+                }
+                else if($("#sequenceType").val() == 'RNA' && $("#note option:selected").text() == 'RNA compositions'){
+                  str += `${tempArr[1]},${rnaArr[tempArr[0] - 1]},Group:${labelDic[seqId]}\n`;
+                }
+                else if($("#sequenceType").val() == 'RNA' && $("#note option:selected").text() == 'RNA-Di-nucleotide compositions'){
+                  str += `${tempArr[1]},${dirnaArr[tempArr[0] - 1]},Group:${labelDic[seqId]}\n`;
+                }
                 else
                   str += `${tempArr[1]},Dimension${tempArr[0]},Group:${labelDic[seqId]}\n`;
               }
@@ -1437,8 +1475,24 @@ function createRfile(labelDic, fileName, mode, separator) {
                 str += seqId + ",";
               else
                 str += ",";
-              if (dimension == 20 && $("#sequenceType").val() == 'Protein') 
-                str += resultArr[i].split(separator)[j] + `,${arr[j - 1]},` + `Group:${labelDic[seqId]}\n`;
+              if($("#sequenceType").val() == 'Protein' && $("#note option:selected").text() == 'Amino acid compositions'){
+                str += resultArr[i].split(separator)[j] + `,${proteinArr[j - 1]},` + `Group:${labelDic[seqId]}\n`;
+              } 
+              else if($("#sequenceType").val() == 'DNA' && $("#note option:selected").text() == 'DNA compositions'){
+                str += resultArr[i].split(separator)[j] + `,${dnaArr[j - 1]},` + `Group:${labelDic[seqId]}\n`;
+              }
+              else if($("#sequenceType").val() == 'DNA' && $("#note option:selected").text() == 'DNA-Di-nucleotide compositions'){
+                str += resultArr[i].split(separator)[j] + `,${didnaArr[j - 1]},` + `Group:${labelDic[seqId]}\n`;
+              }
+              else if($("#sequenceType").val() == 'DNA' && $("#note option:selected").text() == 'DNA-Tri-nucleotide compositions'){
+                str += resultArr[i].split(separator)[j] + `,${tridnaArr[j - 1]},` + `Group:${labelDic[seqId]}\n`;
+              }
+              else if($("#sequenceType").val() == 'RNA' && $("#note option:selected").text() == 'RNA compositions'){
+                str += resultArr[i].split(separator)[j] + `,${rnaArr[j - 1]},` + `Group:${labelDic[seqId]}\n`;
+              }
+              else if($("#sequenceType").val() == 'RNA' && $("#note option:selected").text() == 'RNA-Di-nucleotide compositions'){
+                str += resultArr[i].split(separator)[j] + `,${dirnaArr[j - 1]},` + `Group:${labelDic[seqId]}\n`;
+              }
               else
                 str += resultArr[i].split(separator)[j] + `,Dimension${j},` + `Group:${labelDic[seqId]}\n`;
             }
@@ -1456,21 +1510,16 @@ function createRfileHeader(resultLine, dimension, mode, separator) {
   let headerStr = "";
   switch (mode) {
     case 'SingleComposition':
-      if ($("#sequenceType").val() == 'Protein') {
-        if (resultLine != "" && dimension != 20) {    // 如果蛋白质的特征向量的长度不等于20，则用数字表示每个组分
+      if ($("#sequenceType").val() == 'Protein') {  // Protein
+        if (resultLine != ""  && $("#note option:selected").text() == 'Amino acid compositions') {    // 如果蛋白质的特征向量的长度等于20，则用固定字母表示每个组分
           headerStr = "ID,";
-          for (let j = 1; j <= dimension; j++) {
-            headerStr += "Dimension" + j + ",";
-            if (j == dimension)
+          for (let j = 0; j <= dimension-1; j++) {
+            headerStr += proteinArr[j] + ",";
+            if (j == dimension-1)
               headerStr += "Group\n";
           }
         }
         else {
-          headerStr = 'ID,A,C,D,E,F,G,H,I,K,L,M,N,P,Q,R,S,T,V,W,Y,Group\n';
-        }
-      }
-      else
-        if (resultLine != "") {    // 如果序列类型是DNA/RNA，用数字表示每个组分
           headerStr = "ID,";
           for (let j = 1; j <= dimension; j++) {
             headerStr += "Dimension" + j + ",";
@@ -1478,10 +1527,71 @@ function createRfileHeader(resultLine, dimension, mode, separator) {
               headerStr += "Group\n";
           }
         }
+      }
+      else if($("#sequenceType").val() == 'DNA'){ // DNA
+        if (resultLine != "" && $("#note option:selected").text() == 'DNA compositions') {
+          headerStr = "ID,";
+          for (let j = 0; j <= dimension-1; j++) {
+            headerStr += dnaArr[j] + ",";
+            if (j == dimension-1)
+              headerStr += "Group\n";
+          }
+        }
+        else if(resultLine != "" && $("#note option:selected").text() == 'DNA-Di-nucleotide compositions'){
+          headerStr = "ID,";
+          for (let j = 0; j <= dimension-1; j++) {
+            headerStr += didnaArr[j] + ",";
+            if (j == dimension-1)
+              headerStr += "Group\n";
+          }
+        }
+        else if(resultLine != "" && $("#note option:selected").text() == 'DNA-Tri-nucleotide compositions'){
+          headerStr = "ID,";
+          for (let j = 0; j <= dimension-1; j++) {
+            headerStr += tridnaArr[j] + ",";
+            if (j == dimension-1)
+              headerStr += "Group\n";
+          }
+        }
+        else{
+          headerStr = "ID,";
+          for (let j = 1; j <= dimension; j++) {
+            headerStr += "Dimension" + j + ",";
+            if (j == dimension)
+              headerStr += "Group\n";
+          }
+        }
+      }
+      else{  // RNA
+        if (resultLine != "" && $("#note option:selected").text() == 'RNA compositions') {
+          headerStr = "ID,";
+          for (let j = 0; j <= dimension-1; j++) {
+            headerStr += rnaArr[j] + ",";
+            if (j == dimension-1)
+              headerStr += "Group\n";
+          }
+        }
+        else if(resultLine != "" && $("#note option:selected").text() == 'RNA-Di-nucleotide compositions'){
+          headerStr = "ID,";
+          for (let j = 0; j <= dimension-1; j++) {
+            headerStr += dirnaArr[j] + ",";
+            if (j == dimension-1)
+              headerStr += "Group\n";
+          }
+        }
+        else{
+          headerStr = "ID,";
+          for (let j = 1; j <= dimension; j++) {
+            headerStr += "Dimension" + j + ",";
+            if (j == dimension)
+              headerStr += "Group\n";
+          }
+        }
+      }
       break;
 
     case 'MultipleComposition':
-      if ($("#sequenceType").val() == 'Protein')
+      if ($("#sequenceType").val() == 'Protein' && $("#note option:selected").text() == 'Amino acid compositions')
         headerStr = 'ID,Composition,Amino acids,Group\n';
       else
         headerStr = 'ID,Composition,Dimension,Group\n';
@@ -1499,21 +1609,23 @@ function createRscript(inputFileName, RscriptFileName, headerStr, mode, separato
   str += `data <- read.csv('${inputFileName}', header=TRUE, sep=',');\n`;
   switch (mode) {
     case 'SingleComposition':
-      for (let i = 1; i <= headerStrArr.length - 2; i++) {
-        str += `svg("SingleCompositionImg/${headerStrArr[i]}.svg", width=8, height=6);\n`;
+      // 由于R的限制，单组分模式最大可视化维度设置为60维
+      let singleCompositionMaxDimension = headerStrArr.length - 2 > 60 ? 60 : headerStrArr.length - 2;
+      for (let i = 1; i <= singleCompositionMaxDimension; i++) {
+        str += `svg("SingleCompositionImg/Dimension${i}.svg", width=8, height=6);\n`;
         str += generateCommand("data", headerStrArr[i], "Group", "0.3");
       }
       break;
 
     case 'MultipleComposition':
-      if ($("#sequenceType").val() == 'Protein') {
+      if ($("#sequenceType").val() == 'Protein'  && $("#note option:selected").text() == 'Amino acid compositions') {
         str += `svg("MultipleCompositionImg/multipleComposition1.svg", width=12, height=6);\n`;
         str += "ggplot(data,aes(x=Composition,fill=Amino.acids)) + geom_density(alpha = 0.5) + facet_grid(.~Group) + facet_wrap( ~ Group, ncol=2);\n";
         str += `svg("MultipleCompositionImg/multipleComposition2.svg", width=12, height=9);\n`;
         str += "ggplot(data,aes(x=Composition,fill=Amino.acids)) + geom_density(alpha = 0.5) + facet_grid(Group~.);";
       }
       else {
-        str += `svg("MultipleCompositionImg/multipleComposition1.svg", width=12, height=5);\n`;
+        str += `svg("MultipleCompositionImg/multipleComposition1.svg", width=12, height=6);\n`;
         str += "ggplot(data,aes(x=Composition,fill=Dimension)) + geom_density(alpha = 0.5) + facet_grid(.~Group) + facet_wrap( ~ Group, ncol=2);\n";
         str += `svg("MultipleCompositionImg/multipleComposition2.svg", width=11, height=9);\n`;
         str += "ggplot(data,aes(x=Composition,fill=Dimension)) + geom_density(alpha = 0.5) + facet_grid(Group~.);"; 
@@ -1715,6 +1827,11 @@ function explainComments() {
   alert('Comment is a string. It explains what this property actually offer. If you do not need that, just leave it as null.');
 }
 
+//关于最大可视化维度的提示
+function explainMaxDimension() {
+  alert('This item is used to set the maximum dimension of the visual feature vector, exceeded parts will be ignored. Please note: The maximum dimension of the visual feature vector in "single composition" sub-mode is 60, and this value in "multiple compositions" sub-mode is 200.');
+}
+
 //针对所选的mode给出base和length的实例
 function propexample() {
   var sequenceType = document.getElementById("sequenceType").value;
@@ -1874,4 +1991,3 @@ function showvalueexample2() {
 
   document.getElementById("PropObj").value = "EXAMPLE2";
 }
-
