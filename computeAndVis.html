@@ -289,6 +289,14 @@
                     <label id="labelPathLabel" class="file-path-label"></label>
                 </td>
             </tr>
+
+            <tr id="tr-maxDimension">
+                <td>
+                    Set maximum dimension of the visual feature vector:
+                    <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainMaxDimension()"/>
+                    <select id="maxDimension"></select>
+                </td>
+            </tr>
             
             <tr>
                 <td style="text-align: center;">
@@ -358,6 +366,10 @@
         </table>
         <font color="blue"><p id="tips" style="text-align:center"></p></font>
     </div>
+
+    <script type="text/javascript">
+        addMaxDimension();
+    </script>
 </body>
 
 </html>
