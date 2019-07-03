@@ -13,31 +13,12 @@ function changeRmode() {
 // 显示单组分情况下的R图片
 function showSingleCompositionImg() {
   let html = "";
-  if(seqType == "Protein"){
-    if (dimension != 20) {
-      for (let i = 1; i <= dimension; i++) {
-        html += `<img src="R-3.5.3/bin/SingleCompositionImg/Dimension${i}.svg"><br>`;
-        html += `<a href="R-3.5.3/bin/SingleCompositionImg/Dimension${i}.svg" download="singleComposition-Dimension${i}.svg">Save</a><br><br>`
-        $("#diagram").html(html);
-      }
-    }
-    else {
-      let arr = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y'];
-      for (let j = 0; j < 20; j++) {
-        html += `<img src="R-3.5.3/bin/SingleCompositionImg/${arr[j]}.svg"><br>`;
-        html += `<a href="R-3.5.3/bin/SingleCompositionImg/${arr[j]}.svg" download="singleComposition-${arr[j]}.svg">Save</a><br><br>`
-        $("#diagram").html(html);
-      }
-    }
-  }
-  else{
-    for (let i = 1; i <= dimension; i++) {
+  let singleCompositionMaxDimension = dimension > 60 ? 60 : dimension;
+    for (let i = 1; i <= singleCompositionMaxDimension; i++) {
       html += `<img src="R-3.5.3/bin/SingleCompositionImg/Dimension${i}.svg"><br>`;
       html += `<a href="R-3.5.3/bin/SingleCompositionImg/Dimension${i}.svg" download="singleComposition-Dimension${i}.svg">Save</a><br><br>`
       $("#diagram").html(html);
     }
-  }
-
 }
 
 // 显示多组分情况下的R图片
