@@ -215,7 +215,7 @@ if (isHtml('index.html')) {
       click() {
         // 将当前textArea的内容保存到/UltraPse/input.fas，后面使用该文件作为输入文件调用UltraPse进行计算
         saveText(document.getElementById('textArea').value, path.join(__dirname, 'UltraPse', 'input.fas'));
-        createDiagram('computeAndVis.html', { width: 1000, height: 360, autoHideMenuBar: true });
+        createDiagram('computeAndVis.html', { width: 1000, height: 400, autoHideMenuBar: true });
       }
     }
   );
