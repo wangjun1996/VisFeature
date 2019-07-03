@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Visualization Mode 2 - set parameters</title>
+    <title>Multiple sequences Mode - set parameters</title>
     <link rel="stylesheet" href="css/app.css" />
     <!--jquery-->
     <script src="js/jquery-1.8.0.min.js"></script>
@@ -64,10 +64,6 @@
                 </td>
             </tr>
 
-            <tr id="tr-sequenceId">
-                <td colspan="2">
-                    <table id="sequenceId" frame="void"></table>
-                </td>
             <tr  id="tr-sequenceTypeText">
                 <td>
                     <font size="3">Select Sequence Type:&nbsp;&nbsp;&nbsp;</font>
@@ -96,6 +92,12 @@
                 </td>
             </tr>
 
+            <tr id="tr-sequenceId" style="display:none">
+                <td colspan="2">
+                    <table id="sequenceId" frame="void"></table>
+                </td>
+            </tr>
+
             <tr id="tr-property" style="display:none">
                 <td colspan="2">
                     <table id="checkboxes" frame="void"></table>
@@ -111,7 +113,7 @@
             function addSequenceId(data) {
                 let sel = document.getElementById('sequenceId');
                 let str = "";
-                // str += '<tr></tr>';
+                str += '<font size="3">Sequence ID:</font>';
                 for (let i = 0; i < data.length; i++) {
                     if (i % 4 == 0) str += '<tr align="left">';
                     str += '<td id="modeSelect" colspan="2"><input type="checkbox" name="sid"  value="' + data[i] + '">' + data[i] + '</input></td>';
@@ -126,7 +128,7 @@
             function addcheckbox(data) {
                 let sel = document.getElementById('checkboxes');
                 let str = "";
-                // str += '<tr></tr>';
+                str += '<font size="3">Physicochemical Properties:</font>';
                 for (let i = 0; i < data.length; i++) {
                     if (i % 4 == 0) str += '<tr align="left">';
                     str += '<td id="modeSelect" colspan="2"><input type="checkbox" name="cks" value="' + data[i] + '">' + data[i] + '</input></td>';
@@ -138,6 +140,7 @@
             
             function showSeqId(){
                 $("#tr-sequenceId").css("display", "table-row");
+                $("#tr-property").css("display", "none");
             }
 
             function hideSeqId() {
@@ -146,6 +149,7 @@
 
             function showProperty() {
                 $("#tr-property").css("display", "table-row");
+                $("#tr-sequenceId").css("display", "none");
             }
 
             function hideProperty() {
@@ -189,22 +193,22 @@
                 }
                 if (sidarr.length < 2) {
                     alert("Please choose at least 2 sequence ID.");
-                    $("#tr-sequenceId").css("display", "table-row");
+                    showSeqId();
                     return;
                 }
                 if (sidarr.length > 10) {
                     alert("The maximum number of sequence ID available is 10.");
-                    $("#tr-sequenceId").css("display", "table-row");
+                    showSeqId();
                     return;
                 }
                 if (arr.length < 1) {
                     alert("Please choose at least 1 physicochemical property.");
-                    $("#tr-property").css("display", "table-row");
+                    showProperty();
                     return;
                 }
                 if (arr.length > 10) {
                     alert("The maximum number of physicochemical properties available is 10.");
-                    $("#tr-property").css("display", "table-row");
+                    showProperty();
                     return;
                 }
                 // 通知主进程 selectSeqMode2.html 已关闭，将dictionary发送给主进程，让主进程进行后续操作
