@@ -16,7 +16,7 @@ function example(sequenceType){
 }
 
 function exampleDNA(){
-    let sequence = ">Example1\nAGTCAGTTATGACATGAC\n>Example2\nGAGTATGTCAGTACATAC\n";
+    let sequence = ">Example1\nAGTCAGTTATGACATGACAAT\n>Example2\nGAGTATGTCAGTACATAC\n";
     textArea.value = sequence;
     showBackDiv();
     visualization('DNA');
@@ -30,7 +30,7 @@ function exampleRNA(){
 }
 
 function exampleProtein(){
-    let sequence = ">SEQ_0\nMGDVEKGKKIFIMKCSQCHTVEKGGKHKTGP\n>SEQ_1\nMQIFVKTLTGKTITLEVEPSDTIENVKAKIQ\n";
+    let sequence = ">SEQ_0\nMGDVEKGKKIFIMKCSQCHTVEKGGKHKTGPDTN\n>SEQ_1\nMQIFVKTLTGKTITLEVEPSDTIENVKAKIQ\n";
     textArea.value = sequence;
     showBackDiv();
     visualization('Protein');
