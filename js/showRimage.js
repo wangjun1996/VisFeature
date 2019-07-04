@@ -13,8 +13,7 @@ function changeRmode() {
 // 显示单组分情况下的R图片
 function showSingleCompositionImg() {
   let html = "";
-  let singleCompositionMaxDimension = dimension > 60 ? 60 : dimension;
-    for (let i = 1; i <= singleCompositionMaxDimension; i++) {
+    for (let i = 1; i <= dimension; i++) {
       html += `<img src="R-3.5.3/bin/SingleCompositionImg/Dimension${i}.svg"><br>`;
       html += `<a href="R-3.5.3/bin/SingleCompositionImg/Dimension${i}.svg" download="singleComposition-Dimension${i}.svg">Save</a><br><br>`
       $("#diagram").html(html);
