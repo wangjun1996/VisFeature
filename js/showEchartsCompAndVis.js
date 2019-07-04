@@ -11,6 +11,7 @@ var userdefine = false; //标志位，区分用户定义序列和普通序列两
 var existed_prop = [];  //保存添加的理化性质的id，检查是否有所重复，并提示
 var definePropertyonly = false;//标志位，确实是否是仅添加性质，而不定义新序列
 var maxVisualDimension = 30;  //可视化的默认最大维度
+var dimension;  //计算结果中的向量维度和用户选择的最大可视维度之间的最大值
 
 var proteinArr = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y'];
 var dnaArr = ['A', 'C', 'G', 'T'];
@@ -23,7 +24,7 @@ var dirnaArr = ["AA","AC","AG","AU","CA","CC","CG","CU","GA","GC","GG","GU","UA"
 function addMaxDimension(){
   let maxDimension = document.getElementById('maxDimension');
   let str = "";
-  for(let i = 1; i <= 200; i++){
+  for(let i = 1; i <= 150; i++){
     if(i == 30)
       str += '<option selected>' + i +'</option>';
     else
@@ -1340,15 +1341,22 @@ function upseVisSingleComposition(labelDic, separator) {
   const ipcRenderer = require('electron').ipcRenderer;
   let mode = 'SingleComposition';
   let RfileName = path.join(__dirname, "R-3.5.3", "bin", "VisFeature-Rinput-SingleComposition.csv");
-  let RscriptName = path.join(__dirname, "R-3.5.3", "bin", "VisFeature-Rscript-SingleComposition.R");
   let RfileDic = createRfile(labelDic, RfileName, mode, separator);
-  createRscript("VisFeature-Rinput-SingleComposition.csv", RscriptName, RfileDic["headerStr"], mode, separator);
 
-  let Rcommand = "Rscript VisFeature-Rscript-SingleComposition.R";
-  deleteFiles(path.join(__dirname, "R-3.5.3", "bin", "SingleCompositionImg"));
-  if (runExecSync(Rcommand, path.join(__dirname, 'R-3.5.3', 'bin')) == "error") {
-    return;
+  for(let i = 1; i <= parseInt(maxVisualDimension/61) + 1; i++){
+    let RscriptName = path.join(__dirname, "R-3.5.3", "bin", `VisFeature-Rscript-SingleComposition${i}.R`);
+    createRscript("VisFeature-Rinput-SingleComposition.csv", RscriptName, RfileDic["headerStr"], mode, separator, i);
   }
+
+  deleteFiles(path.join(__dirname, "R-3.5.3", "bin", "SingleCompositionImg"));
+
+  for(let j = 1; j <= parseInt(maxVisualDimension/61) + 1; j++){
+    let Rcommand = `Rscript VisFeature-Rscript-SingleComposition${j}.R`;
+    if (runExecSync(Rcommand, path.join(__dirname, 'R-3.5.3', 'bin')) != "error" && j == parseInt(maxVisualDimension/61) + 1) {
+      return;
+    }
+  }
+
 }
 
 // 创建多组分情况下的R输入文件、R脚本，并调用R处理R脚本，在指定文件夹生成图片
@@ -1359,7 +1367,7 @@ function upseVisMultipleComposition(labelDic, separator) {
   let RfileName = path.join(__dirname, "R-3.5.3", "bin", "VisFeature-Rinput-MultipleComposition.csv");
   let RscriptName = path.join(__dirname, "R-3.5.3", "bin", "VisFeature-Rscript-MultipleComposition.R");
   let RfileDic = createRfile(labelDic, RfileName, mode, separator);
-  createRscript("VisFeature-Rinput-MultipleComposition.csv", RscriptName, RfileDic["headerStr"], mode, separator);
+  createRscript("VisFeature-Rinput-MultipleComposition.csv", RscriptName, RfileDic["headerStr"], mode, separator, 1);
 
   let Rcommand = "Rscript VisFeature-Rscript-MultipleComposition.R";
   deleteFiles(path.join(__dirname, "R-3.5.3", "bin", "MultipleCompositionImg"));
@@ -1376,7 +1384,6 @@ function createRfile(labelDic, fileName, mode, separator) {
   let resultData = $("#upseResultTextArea").val();
   let resultArr = resultData.split('\n');
   let str = "";
-  let dimension = 0;
   if (separator == " ") {
     resultArr[0].split(separator).length - 4 > maxVisualDimension ? dimension = maxVisualDimension : dimension = resultArr[0].split(separator).length - 4;   // 可视化的向量维度最多为maxVisualDimension维，超过则按maxVisualDimension维计算
   }
@@ -1601,7 +1608,7 @@ function createRfileHeader(resultLine, dimension, mode, separator) {
 }
 
 // 创建R脚本文件VisFeature-Rscript-SingleComposition.R，用于R可视化
-function createRscript(inputFileName, RscriptFileName, headerStr, mode, separator) {
+function createRscript(inputFileName, RscriptFileName, headerStr, mode, separator, index) {
   const fs = require('fs');
   let headerStrArr = headerStr.split(",");
   let str = "";
@@ -1610,8 +1617,10 @@ function createRscript(inputFileName, RscriptFileName, headerStr, mode, separato
   switch (mode) {
     case 'SingleComposition':
       // 由于R的限制，单组分模式最大可视化维度设置为60维
-      let singleCompositionMaxDimension = headerStrArr.length - 2 > 60 ? 60 : headerStrArr.length - 2;
-      for (let i = 1; i <= singleCompositionMaxDimension; i++) {
+      // let singleCompositionMaxDimension = headerStrArr.length - 2 > 60 ? 60 : headerStrArr.length - 2;
+      let start = (index-1)*60+1;
+      let end = 60 * index > maxVisualDimension ? dimension : 60 * index;
+      for (let i = start; i <= end; i++) {
         str += `svg("SingleCompositionImg/Dimension${i}.svg", width=8, height=6);\n`;
         str += generateCommand("data", headerStrArr[i], "Group", "0.3");
       }
@@ -1829,7 +1838,7 @@ function explainComments() {
 
 //关于最大可视化维度的提示
 function explainMaxDimension() {
-  alert('This item is used to set the maximum dimension of the visual feature vector, exceeded parts will be ignored. Please note: The maximum dimension of the visual feature vector in "single composition" sub-mode is 60, and this value in "multiple compositions" sub-mode is 200.');
+  alert('This item is used to set the maximum dimension of the visual feature vector, exceeded parts will be ignored. Please note: The maximum dimension of the visual feature vector is 150. If the dimension of each feature vector larger than 150, VisFeature will visualize the top 150 dimensional features.');
 }
 
 //针对所选的mode给出base和length的实例
