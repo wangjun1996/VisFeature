@@ -1,15 +1,17 @@
 # VisFeature
-A stand-alone program for features extraction and visualization of biological sequences
+A stand-alone program for visualizing and analyzing statistical features of biological sequences
 
 ## Installation
 
 We have tested these codes on **Windows10-64bit platform**. There is no guarantee that these codes can be compiled and executed on other platforms without modifications.
 
-For ***Microsoft Windows platform***, just download the VisFeature-win32-x64.7z package from https://github.com/wangjun1996/VisFeature/releases. Unpack it to your favorite location and then open `VisFeature.exe`.
+- For ***Microsoft Windows platform***, just download the VisFeature-win32-x64.7z package from https://github.com/wangjun1996/VisFeature/releases. Unpack it to your favorite location and then open `VisFeature.exe`.
 
-For ***Linux platform***, just download the VisFeature-linux-x64.7z package from https://github.com/wangjun1996/VisFeature/releases. Unpack it to your favorite location and then open `VisFeature`.
+- For ***Linux platform***, just download the VisFeature-linux-x64.7z package from https://github.com/wangjun1996/VisFeature/releases. Unpack it to your favorite location and then open `VisFeature`.
 
-**Please note**: The maximum size of file that can be opened in VisFeature is **5MB**. If you want to use a file that larger than 5MB as input, you can **upload** it on the page of "Compute And Visualization" mode. Uploading file is much faster than opening file, so upload is more recommended.
+**Please note**: 
+- Some anti-virus software may report a risky warning when you first run VisFeature. Please do not worry about it and you can ignore it.
+- The maximum size of file that can be opened in VisFeature is **5MB**. If you want to use a file that larger than 5MB as input, you can **upload** it on the page of "Compute And Visualization" mode. Uploading file is much faster than opening file, so upload is more recommended.
 
 If you got any difficulties, just send emails to wj0708@tju.edu.cn. We will try our best to fix it.
 
