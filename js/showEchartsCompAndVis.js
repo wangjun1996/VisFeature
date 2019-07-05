@@ -1293,7 +1293,7 @@ function upseVisualization() {
   maxVisualDimension = $("#maxDimension option:selected").text();
   try {
     if ($("#labelPathLabel").text() == "") {  // 若没有上传序列label文件，弹框提示
-      alert("Please Upload a label index file!");
+      alert("Please Upload a label file.");
       $("#uploadLabelBtn").focus();
       return;
     }
@@ -1628,13 +1628,13 @@ function createRscript(inputFileName, RscriptFileName, headerStr, mode, separato
 
     case 'MultipleComposition':
       if ($("#sequenceType").val() == 'Protein'  && $("#note option:selected").text() == 'Amino acid compositions') {
-        str += `svg("MultipleCompositionImg/multipleComposition1.svg", width=12, height=6);\n`;
+        str += `svg("MultipleCompositionImg/multipleComposition1.svg", width=11.5, height=6);\n`;
         str += "ggplot(data,aes(x=Composition,fill=Amino.acids)) + geom_density(alpha = 0.5) + facet_grid(.~Group) + facet_wrap( ~ Group, ncol=2);\n";
-        str += `svg("MultipleCompositionImg/multipleComposition2.svg", width=12, height=9);\n`;
+        str += `svg("MultipleCompositionImg/multipleComposition2.svg", width=11, height=9);\n`;
         str += "ggplot(data,aes(x=Composition,fill=Amino.acids)) + geom_density(alpha = 0.5) + facet_grid(Group~.);";
       }
       else {
-        str += `svg("MultipleCompositionImg/multipleComposition1.svg", width=12, height=6);\n`;
+        str += `svg("MultipleCompositionImg/multipleComposition1.svg", width=11.5, height=6);\n`;
         str += "ggplot(data,aes(x=Composition,fill=Dimension)) + geom_density(alpha = 0.5) + facet_grid(.~Group) + facet_wrap( ~ Group, ncol=2);\n";
         str += `svg("MultipleCompositionImg/multipleComposition2.svg", width=11, height=9);\n`;
         str += "ggplot(data,aes(x=Composition,fill=Dimension)) + geom_density(alpha = 0.5) + facet_grid(Group~.);"; 
