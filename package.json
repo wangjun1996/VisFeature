@@ -1,19 +1,19 @@
 {
   "name": "VisFeature",
   "version": "1.0.0",
-  "description": "VisFeature Project",
+  "description": "a stand-alone program for visualizing and analyzing statistical features of biological sequences",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "windows": "electron-packager ./ VisFeature --platform=win32 --arch=x64 --icon=img/icon.ico --out=./windows-out --electron-version=4.0.5",
     "linux": "electron-packager ./ VisFeature --platform=linux --arch=x64 --out=./linux-out --electron-version=4.0.5"
   },
-  "repository": "https://github.com/...",
+  "repository": "https://github.com/wangjun1996/VisFeature",
   "keywords": [
-    "UltraPse", "clustalw2", "R", "Echarts"
+    "visualization", "UltraPse", "clustalw2", "R", "Echarts"
   ],
   "author": "WangJun et al.",
-  "license": "ISC",
+  "license": "GNU General Public License v3.0",
   "devDependencies": {
     "electron": "^4.0.5"
   }
