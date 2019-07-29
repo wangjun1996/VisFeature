@@ -63,6 +63,22 @@
                 </td>
             </tr>
 
+            <tr id="tr-maxProperty">
+                <td>
+                    <font size="3">Set maximum number of selectable physicochemical properties:</font>
+                    <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainMaxProperty()"/>
+                    &nbsp;&nbsp;&nbsp;
+                    <select id="maxProperty">
+                        <option>5</option>
+                        <option selected>10</option>
+                        <option>15</option>
+                        <option>20</option>
+                        <option>25</option>
+                        <option>30</option>
+                    </select>
+                </td>
+            </tr>
+
             <tr id="tr-valueType" style="display:none">
                 <td>
                     <font size="3">Select type of values of Physicochemical Properties:&nbsp;&nbsp;&nbsp;</font>
@@ -125,6 +141,7 @@
                     var r = document.getElementsByName("cks");
                     var sequenceId = document.getElementById("sequenceId").value;
                     var sequenceType = $("#sequenceType").val();
+                    var maxProperty = $("#maxProperty option:selected").text();
                     for (var i = 0; i < r.length; i++) {
                         if (r[i].checked) {
                             //获取选中的checkbox的值
@@ -139,9 +156,12 @@
                         alert("Please choose at least 1 physicochemical property.");
                         return;
                     }
-                    if (str.length > 10) {
-                        alert("The maximum number of physicochemical properties available is 10.");
+                    if (str.length > maxProperty) {
+                        alert("The maximum number of physicochemical properties selectable is " + maxProperty + ".");
                         return;
+                    }
+                    if (str.length > 10) {
+                        alert("Note:\nThe excessive number of physicochemical properties selected will result in too many curves on the page of visualization, which will affect the visual effect.\nWhen the number of physicochemical properties selected is large, the rendering speed of curves will become slower and the delay of the operation will increase.");
                     }
                     // 通知主进程 selectSeqMode1.html 已关闭，将dictionary发送给主进程，让主进程进行后续操作
                     let dictionary = { 'seqId': sequenceId, 'sequenceDic': sequenceDic, 'checked': str, 'sequenceType': sequenceType, 'valueType': $("#valueType").val() }

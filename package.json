@@ -6,7 +6,8 @@
   "scripts": {
     "start": "electron .",
     "windows": "electron-packager ./ VisFeature --platform=win32 --arch=x64 --icon=img/icon.ico --out=./windows-out --electron-version=4.0.5",
-    "linux": "electron-packager ./ VisFeature --platform=linux --arch=x64 --out=./linux-out --electron-version=4.0.5"
+    "linux": "electron-packager ./ VisFeature --platform=linux --arch=x64 --icon=img/icon.ico --out=./linux-out --electron-version=4.0.5",
+    "build": "electron-builder --linux"
   },
   "repository": "https://github.com/wangjun1996/VisFeature",
   "keywords": [
@@ -16,5 +17,16 @@
   "license": "GNU General Public License v3.0",
   "devDependencies": {
     "electron": "^4.0.5"
+  },
+  "build": {  
+    "productName":"VisFeature",
+    "appId": "com.VisFeature", 
+    "copyright":"GNU General Public License v3.0",
+    "directories": { 
+      "output": "build"
+    }, 
+    "linux": {  
+      "icon": "img/icon.ico"
+    }  
   }
 }

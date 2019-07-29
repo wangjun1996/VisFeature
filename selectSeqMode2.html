@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Multiple sequences Mode - set parameters</title>
+    <title>Multiple Sequences Mode - set parameters</title>
     <link rel="stylesheet" href="css/app.css" />
     <!--jquery-->
     <script src="js/jquery-1.8.0.min.js"></script>
@@ -70,6 +70,23 @@
                 </td>
                 <td>
                     <select id="sequenceType" onchange="changeType()"><option>Protein</option><option>diDNA</option><option>triDNA</option><option>diRNA</option></select>
+                </td>
+            </tr>
+
+            <tr id="tr-maxProperty">
+                <td>
+                    <font size="3">Set maximum number of selectable physicochemical properties:</font>
+                    <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainMaxProperty()"/>
+                </td>
+                <td>
+                    <select id="maxProperty">
+                        <option>5</option>
+                        <option selected>10</option>
+                        <option>15</option>
+                        <option>20</option>
+                        <option>25</option>
+                        <option>30</option>
+                    </select>
                 </td>
             </tr>
 
@@ -177,6 +194,7 @@
                 var sidarr = [];
                 var r = document.getElementsByName("sid");
                 var sequenceType = $("#sequenceType").val();
+                var maxProperty = $("#maxProperty option:selected").text();
                 for (var i = 0; i < r.length; i++) {
                     if (r[i].checked) {
                         //获取选中的checkbox的值（序列ID）
@@ -197,7 +215,7 @@
                     return;
                 }
                 if (sidarr.length > 10) {
-                    alert("The maximum number of sequence ID available is 10.");
+                    alert("The maximum number of sequence ID selectable is 10.");
                     showSeqId();
                     return;
                 }
@@ -206,10 +224,16 @@
                     showProperty();
                     return;
                 }
-                if (arr.length > 10) {
-                    alert("The maximum number of physicochemical properties available is 10.");
+                if (arr.length > maxProperty) {
+                    alert("The maximum number of physicochemical properties selectable is " + maxProperty + ".");
                     showProperty();
                     return;
+                }
+                if (arr.length > 10) {
+                    alert("Note:\nThe excessive number of physicochemical properties selected will result in too many curves on the page of visualization, which will affect the visual effect.\nWhen the number of physicochemical properties selected is large, the rendering speed of curves will become slower and the delay of the operation will increase.");
+                }
+                else if(sidarr.length > 5){
+                    alert("Note:\nWhen the number of sequences selected is large, the rendering speed of curves will become slower and the delay of the operation will increase.");
                 }
                 // 通知主进程 selectSeqMode2.html 已关闭，将dictionary发送给主进程，让主进程进行后续操作
                 let dictionary = { 'seqId': sidarr, 'sequenceDic': sequenceDic, 'checked': arr, 'ifmode2': 1, 'sequenceType': sequenceType, 'valueType': $("#valueType").val() };
