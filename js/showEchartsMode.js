@@ -181,8 +181,15 @@ function isHtml(htmlName) {
     let name;
     if (position == -1)
         name = url.substring(url.lastIndexOf('/'));
-    else
-        name = url.substring(url.lastIndexOf('/'), url.lastIndexOf('?'));
+    else{
+        if(process.platform == "linux"){
+            let temp = url.substring(0, url.lastIndexOf('?'));
+            name = url.substring(temp.lastIndexOf('/'), url.lastIndexOf('?'));
+        }
+        else{
+            name = url.substring(url.lastIndexOf('/'), url.lastIndexOf('?'));
+        }
+    }
     let curentHtmlName = name.substr(1);
     return curentHtmlName == htmlName ? true : false;
 }

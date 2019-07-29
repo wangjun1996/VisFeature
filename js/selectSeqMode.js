@@ -104,3 +104,8 @@ function controlShowOrHide(controlId, status) {
     let control = document.getElementById(controlId);
     control.style.display = status;
   }
+
+// 关于最大可选理化性质数量的提示
+function explainMaxProperty(){
+    alert('This item is used to set the maximum number of selectable physicochemical properties. Note:\n(1) The excessive number of physicochemical properties selected will result in too many curves on the page of visualization, which will affect the visual effect.\n(2) When the number of sequences or the number of physicochemical properties selected is large, the rendering speed of curves will become slower and the delay of the operation will increase.');
+}

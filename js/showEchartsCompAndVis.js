@@ -12,6 +12,7 @@ var existed_prop = [];  //保存添加的理化性质的id，检查是否有所�
 var definePropertyonly = false;//标志位，确实是否是仅添加性质，而不定义新序列
 var maxVisualDimension = 30;  //可视化的默认最大维度
 var dimension;  //计算结果中的向量维度和用户选择的最大可视维度之间的最大值
+var RFolder = "R-3.5.3";  //R根目录的文件夹名字，Windows平台下是R-3.5.3，Linux平台下是R
 
 var proteinArr = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y'];
 var dnaArr = ['A', 'C', 'G', 'T'];
@@ -35,6 +36,9 @@ function addMaxDimension(){
 
 // 设置参数对象的值，调用UltraPse计算结果
 function submit() {
+  if(process.platform == "linux"){
+    RFolder = "R";
+  }
   if (checkParameterValid() == "invalid")
     return;
   let inputData = fs.readFileSync(path.join(__dirname, 'UltraPse', 'input.fas'), 'utf-8');
@@ -121,6 +125,7 @@ function changeMethod() {
       controlShowOrHide("tr-mode", "table-row");
       controlShowOrHide("tr-note", "table-row");
       controlShowOrHide("tr-PhyControl", "none");
+      controlShowOrHide("tr-maxProperty", "none");
       controlShowOrHide("tr-Phy", "none");
       controlShowOrHide("tr-lambda", "none");
       controlShowOrHide("tr-omega", "none");
@@ -138,6 +143,7 @@ function changeMethod() {
       controlShowOrHide("tr-mode", "none");
       controlShowOrHide("tr-note", "none");
       controlShowOrHide("tr-PhyControl", "none");
+      controlShowOrHide("tr-maxProperty", "none");
       controlShowOrHide("tr-Phy", "none");
       controlShowOrHide("tr-lambda", "table-row");
       controlShowOrHide("tr-omega", "table-row");
@@ -299,11 +305,14 @@ function changeNote() {
   let note = document.getElementById("note").value;
   if (note == "DNA compositions" || note == "DNA-Di-nucleotide compositions" || note == "DNA-Tri-nucleotide compositions" || note == "RNA compositions" || note == "Amino acid compositions" || note == "RNA-Di-nucleotide compositions" || note == "PsePSSM") {
     controlShowOrHide("tr-PhyControl", "none");
+    controlShowOrHide("tr-maxProperty", "none");
     controlShowOrHide("tr-Phy", "none");
   }
 
-  else
+  else{
     controlShowOrHide("tr-PhyControl", "table-row");
+    controlShowOrHide("tr-maxProperty", "table-row");
+  }
   switch (note) {
     case 'Di-nucleotide Type I General PseKNC':
     case 'Di-nucleotide Type II General PseKNC':
@@ -363,10 +372,12 @@ function changeNote2() {
   let note = document.getElementById("note").value;
   if (note == "DNA compositions" || note == "DNA-Di-nucleotide compositions" || note == "DNA-Tri-nucleotide compositions" || note == "RNA compositions" || note == "Amino acid compositions" || note == "RNA-Di-nucleotide compositions" || note == "Di-peptide compositions" || note == "PsePSSM") {
     controlShowOrHide("tr-PhyControl", "none");
+    controlShowOrHide("tr-maxProperty", "none");
     controlShowOrHide("tr-Phy", "none");
   }
   else {
     controlShowOrHide("tr-PhyControl", "table-row");
+    controlShowOrHide("tr-maxProperty", "table-row");
     generatePhy();
   }
   //针对note控制lambda和w的显示
@@ -406,12 +417,14 @@ function changeNote2() {
       controlShowOrHide("tr-lambda", "table-row");
       controlShowOrHide("tr-omega", "table-row");
       controlShowOrHide("showProperty", "none");
+      controlShowOrHide("tr-maxProperty", "none");
       break;
     case 'Composition-Transition-Distributions':
       $("#btnadddprop").css("display", "none");
       $("#showSelfdefinedProp").css("display", "none");
       controlShowOrHide("tr-lambda", "none");
       controlShowOrHide("tr-omega", "none");
+      controlShowOrHide("tr-maxProperty", "none");
       break;
     case 'DNA-Di-nucleotide Auto covariance':
     case 'DNA-Di-nucleotide Cross covariance':
@@ -586,7 +599,7 @@ function compute(type) {
     alert('The output file: "' + openFileName + '" already exists.\nPlease modify the path of the output file!');
     return;
   }
-  
+
   if (runExecSync(command, path.join(__dirname, 'UltraPse')) != "error") {
     try {
       var data = fs.readFileSync(openFileName, 'utf-8');  //同步读取UltraPse计算得出的结果
@@ -618,7 +631,11 @@ function deleteFile(fileName) {
 // （同步）执行命令行，command:命令，path:执行命令的路径
 function runExecSync(command, path) {
   const execSync = require('child_process').execSync;
-  // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要cwd参数：
+  // 如果当前系统平台是Linux，则要在command前加上./
+  if(process.platform == "linux" && command.substr(0,1) !== "."){
+    command = "./" + command;
+  }
+  // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要path参数：
   try {
     execSync(command, { cwd: path });
   } catch (err) {
@@ -1154,14 +1171,16 @@ function commandPhy() {
   var obj = document.getElementsByName("choosemode");
   var check_val = [];
   var count = 0;
+  var maxProperty = $("#maxProperty option:selected").text();
   for (var k in obj) {
     if (obj[k].checked) {
       check_val.push(obj[k].value);//把选择的性质保存到check_val[]中
       count++;
     }
   }
-  if (count > 10) {//选择大于10个性质，则提示
-    alert("Amount of system data is exceedingly huge, you can't choose more than 10 Physicochemical properties.");
+  if (count > maxProperty) {//选择的性质数量超过最大数，则提示
+    alert("The maximum number of physicochemical properties selectable is " + maxProperty + ".");
+    showPhy();
     return;
   }
 
@@ -1340,19 +1359,19 @@ function upseVisSingleComposition(labelDic, separator) {
   const path = require('path');
   const ipcRenderer = require('electron').ipcRenderer;
   let mode = 'SingleComposition';
-  let RfileName = path.join(__dirname, "R-3.5.3", "bin", "VisFeature-Rinput-SingleComposition.csv");
+  let RfileName = path.join(__dirname, RFolder, "bin", "VisFeature-Rinput-SingleComposition.csv");
   let RfileDic = createRfile(labelDic, RfileName, mode, separator);
 
   for(let i = 1; i <= parseInt(maxVisualDimension/61) + 1; i++){
-    let RscriptName = path.join(__dirname, "R-3.5.3", "bin", `VisFeature-Rscript-SingleComposition${i}.R`);
+    let RscriptName = path.join(__dirname, RFolder, "bin", `VisFeature-Rscript-SingleComposition${i}.R`);
     createRscript("VisFeature-Rinput-SingleComposition.csv", RscriptName, RfileDic["headerStr"], mode, separator, i);
   }
 
-  deleteFiles(path.join(__dirname, "R-3.5.3", "bin", "SingleCompositionImg"));
+  deleteFiles(path.join(__dirname, RFolder, "bin", "SingleCompositionImg"));
 
   for(let j = 1; j <= parseInt(maxVisualDimension/61) + 1; j++){
     let Rcommand = `Rscript VisFeature-Rscript-SingleComposition${j}.R`;
-    if (runExecSync(Rcommand, path.join(__dirname, 'R-3.5.3', 'bin')) != "error" && j == parseInt(maxVisualDimension/61) + 1) {
+    if (runExecSync(Rcommand, path.join(__dirname, RFolder, 'bin')) != "error" && j == parseInt(maxVisualDimension/61) + 1) {
       return;
     }
   }
@@ -1364,14 +1383,14 @@ function upseVisMultipleComposition(labelDic, separator) {
   const path = require('path');
   const ipcRenderer = require('electron').ipcRenderer;
   let mode = 'MultipleComposition';
-  let RfileName = path.join(__dirname, "R-3.5.3", "bin", "VisFeature-Rinput-MultipleComposition.csv");
-  let RscriptName = path.join(__dirname, "R-3.5.3", "bin", "VisFeature-Rscript-MultipleComposition.R");
+  let RfileName = path.join(__dirname, RFolder, "bin", "VisFeature-Rinput-MultipleComposition.csv");
+  let RscriptName = path.join(__dirname, RFolder, "bin", "VisFeature-Rscript-MultipleComposition.R");
   let RfileDic = createRfile(labelDic, RfileName, mode, separator);
   createRscript("VisFeature-Rinput-MultipleComposition.csv", RscriptName, RfileDic["headerStr"], mode, separator, 1);
 
   let Rcommand = "Rscript VisFeature-Rscript-MultipleComposition.R";
-  deleteFiles(path.join(__dirname, "R-3.5.3", "bin", "MultipleCompositionImg"));
-  if (runExecSync(Rcommand, path.join(__dirname, 'R-3.5.3', 'bin')) != "error") {
+  deleteFiles(path.join(__dirname, RFolder, "bin", "MultipleCompositionImg"));
+  if (runExecSync(Rcommand, path.join(__dirname, RFolder, 'bin')) != "error") {
     // 通知主进程 computeAndVis.html 已关闭，将向量的dimension发送给主进程，让主进程进行后续操作
     ipcRenderer.send('computeAndVis-close', { "dimension": RfileDic["vectorDimension"], "seqType": $("#sequenceType").val() });
     window.close();
@@ -1745,6 +1764,11 @@ function showAddtable() {
 // 关于计算方法的提示
 function explainMethod() {
   alert("There are two compute methods. They are self-defined parameters and task definition file (TDF). A TDF in VisFeature is a Lua script. Details about TDF can be found here: https://github.com/pufengdu/UltraPse/blob/master/doc/manual.pdf.");
+}
+
+// 关于最大可选理化性质数量的提示
+function explainMaxProperty() {
+  alert('This item is used to set the maximum number of selectable physicochemical properties. Note: The excessive number of physicochemical properties selected will increase calculation time.');
 }
 
 // 关于λ的提示

@@ -67,7 +67,6 @@ function ifSelect(id){
 
 // 判断用户选择的序列ID中是否存在多条序列同名
 function SameName(idArray) {
-    console.log(idArray);
     var hash = {};
     for (var i in idArray) {
         if (hash[idArray[i]]){
@@ -91,17 +90,22 @@ function runClustalw2(file) {
     let result = "";
     let resultList = [];
     let clustalw2List = [];
+    let resultStart = 45;   // clustalw2结果的起始位置，windows下为45，linux下为42
 
     let cmdResult = runExecSync('clustalw2 -INFILE=' + file + ' -OUTFILE=output.fas -OUTORDER=INPUT ', path.join(__dirname, 'clustalw2'));
+    
     let openFileName = path.join(__dirname, 'clustalw2', 'output.fas');
 
     let data = fs.readFileSync(openFileName, 'utf-8');  //同步读取clustalw2计算得出的结果
     alignmentResultShowOrHide("block");
 
     let dataList = data.split("");
-    for (let i = 45; i + 1 < dataList.length; i++) {
+    if(process.platform == "linux"){
+        resultStart = 42;
+    }
+    for (let i = resultStart; i + 1 < dataList.length; i++) {
         if (dataList[i] == "\n" && dataList[i + 1] == " ") {
-            result = data.substring(45, dataList.length);
+            result = data.substring(resultStart, dataList.length);
             break;
         }
     }
@@ -173,7 +177,11 @@ function getClustalw2Result(clustalw2List) {
 // （同步）执行命令行，command:命令，path:执行命令的路径
 function runExecSync(command, path) {
     const execSync = require('child_process').execSync;
-    // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要cwd参数：
+    // 如果当前系统平台是Linux，则要在command前加上./
+    if(process.platform == "linux" && command.substr(0,1) !== "."){
+        command = "./" + command;
+    }
+    // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要path参数：
     let cmdResult = execSync(command, { cwd: path });
     return cmdResult;
 }

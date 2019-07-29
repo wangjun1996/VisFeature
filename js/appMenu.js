@@ -195,7 +195,7 @@ if (isHtml('index.html')) {
     },
     {
       // 单击该按钮后，输入参数(多条序列，多个理化性质)，生成曲线图
-      label: 'Multiple sequences Mode',
+      label: 'Multiple Sequences Mode',
       accelerator: process.platform == 'darwin' ? 'Command+E' : 'Ctrl+E',
       click() {
         // 将当前textArea的内容保存到/clustalw2/input.fas，后面读取该文件进行多序列比对
@@ -210,7 +210,7 @@ if (isHtml('index.html')) {
     },
     {
       // 单击该按钮后，输入参数，计算序列的特征向量，并可视化
-      label: 'Compute And Visualization',
+      label: 'Density Map Comparison',
       accelerator: process.platform == 'darwin' ? 'Command+G' : 'Ctrl+G',
       click() {
         // 将当前textArea的内容保存到/UltraPse/input.fas，后面使用该文件作为输入文件调用UltraPse进行计算
@@ -228,8 +228,15 @@ function isHtml(htmlName) {
   let name;
   if (position == -1)
     name = url.substring(url.lastIndexOf('/'));
-  else
-    name = url.substring(url.lastIndexOf('/'), url.lastIndexOf('?'));
+  else{
+    if(process.platform == "linux"){
+      let temp = url.substring(0, url.lastIndexOf('?'));
+      name = url.substring(temp.lastIndexOf('/'), url.lastIndexOf('?'));
+    }
+    else{
+      name = url.substring(url.lastIndexOf('/'), url.lastIndexOf('?'));
+    }
+  }
   let curentHtmlName = name.substr(1);
   return curentHtmlName == htmlName ? true : false;
 }
@@ -352,6 +359,7 @@ function readText(file) {
 //打开文件
 function openFile() {
   const fs = require('fs');
+
   const files = remote.dialog.showOpenDialog(remote.getCurrentWindow(), {
     title: 'Please choose a file in fasta format',
     filters: [
@@ -371,6 +379,12 @@ function openFile() {
         return;
       }
       else{
+        //实现每次打开新文件都使序列类型变为None
+        require('electron').remote.getGlobal('sharedObject').sequenceType = 'None';
+        $("#colorSequence").css("display", "none");
+        $('.textArea').css('-webkit-text-fill-color', 'black');
+        $('.textArea').css('background-color', 'white');
+
         document.getElementById("FilePathLabel").innerText = files[0];
         const txtRead = readText(files[0]);
         require('electron').remote.getGlobal('sharedObject').theFile.name = files[0];

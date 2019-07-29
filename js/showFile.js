@@ -89,6 +89,9 @@ function showFileContent(){
          if(arg=='open'){
              const fs=require('fs');
              openFileName = path.join(selectFolder, selectFile);
+             if(process.platform == "linux"){
+                openFileName = path.join(selectFolder, selectFile.slice(1)); 
+             }
              fs.stat(openFileName, function(err,stats){
                 if(err){
                   alert(err);
