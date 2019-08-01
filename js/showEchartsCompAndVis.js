@@ -1309,6 +1309,11 @@ function generateTdf() {
 }
 
 function upseVisualization() {
+  const fs= require("fs");
+  if(process.platform == "linux" && !fs.existsSync("/usr/bin/Rscript")){
+     alert("Rscript was not found in '/usr/bin/' directory. Please make sure R software and its ggplot2 package are properly installed before executing visualization. Details on how to install R software and its ggplot2 package can be found in the user manual.");
+     return;
+  }
   maxVisualDimension = $("#maxDimension option:selected").text();
   try {
     if ($("#labelPathLabel").text() == "") {  // 若没有上传序列label文件，弹框提示
@@ -1371,7 +1376,14 @@ function upseVisSingleComposition(labelDic, separator) {
 
   for(let j = 1; j <= parseInt(maxVisualDimension/61) + 1; j++){
     let Rcommand = `Rscript VisFeature-Rscript-SingleComposition${j}.R`;
-    if (runExecSync(Rcommand, path.join(__dirname, RFolder, 'bin')) != "error" && j == parseInt(maxVisualDimension/61) + 1) {
+    if(process.platform == "linux"){
+      Rcommand = `Rscript ${path.join(__dirname, RFolder, "bin")}/VisFeature-Rscript-SingleComposition${j}.R`;
+    }
+    
+    if (process.platform == "win32" && runExecSync(Rcommand, path.join(__dirname, RFolder, 'bin')) != "error" && j == parseInt(maxVisualDimension/61) + 1) {
+      return;
+    }
+    if (process.platform == "linux" && runExecSync(Rcommand, "/usr/bin/") != "error" && j == parseInt(maxVisualDimension/61) + 1) {
       return;
     }
   }
@@ -1389,8 +1401,17 @@ function upseVisMultipleComposition(labelDic, separator) {
   createRscript("VisFeature-Rinput-MultipleComposition.csv", RscriptName, RfileDic["headerStr"], mode, separator, 1);
 
   let Rcommand = "Rscript VisFeature-Rscript-MultipleComposition.R";
+  if(process.platform == "linux"){
+      Rcommand = `Rscript ${path.join(__dirname, RFolder, "bin")}/VisFeature-Rscript-MultipleComposition.R`;
+  }
   deleteFiles(path.join(__dirname, RFolder, "bin", "MultipleCompositionImg"));
-  if (runExecSync(Rcommand, path.join(__dirname, RFolder, 'bin')) != "error") {
+
+  if (process.platform == "win32" && runExecSync(Rcommand, path.join(__dirname, RFolder, 'bin')) != "error") {
+    // 通知主进程 computeAndVis.html 已关闭，将向量的dimension发送给主进程，让主进程进行后续操作
+    ipcRenderer.send('computeAndVis-close', { "dimension": RfileDic["vectorDimension"], "seqType": $("#sequenceType").val() });
+    window.close();
+  }
+  if (process.platform == "linux" && runExecSync(Rcommand, "/usr/bin/") != "error") {
     // 通知主进程 computeAndVis.html 已关闭，将向量的dimension发送给主进程，让主进程进行后续操作
     ipcRenderer.send('computeAndVis-close', { "dimension": RfileDic["vectorDimension"], "seqType": $("#sequenceType").val() });
     window.close();
@@ -1631,6 +1652,9 @@ function createRscript(inputFileName, RscriptFileName, headerStr, mode, separato
   const fs = require('fs');
   let headerStrArr = headerStr.split(",");
   let str = "";
+  if(process.platform == "linux"){
+      str += `setwd("${path.join(__dirname, RFolder, "bin")}");\n`;
+  }
   str += "library('ggplot2');\n";
   str += `data <- read.csv('${inputFileName}', header=TRUE, sep=',');\n`;
   switch (mode) {
