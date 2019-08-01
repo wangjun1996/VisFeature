@@ -15,7 +15,7 @@ function objectIsNull(object) {
 
 // 当 Electron 完成了初始化并且准备创建浏览器窗口的时候,该方法被调用
 app.on('ready', function () {
-  mainWindow = new BrowserWindow({ width: 1024, height: 768, minWidth: 800, minHeight: 600, icon: path.join(__dirname, 'img', 'icon.jpg') });
+  mainWindow = new BrowserWindow({ width: 1024, height: 768, minWidth: 600, minHeight: 400, icon: path.join(__dirname, 'img', 'icon.jpg') });
   mainWindow.loadFile('index.html');
 
  //接收 index.html 子进程发来的消息
