@@ -79,7 +79,7 @@
                     <img src="./img/explanation.jpg"  alt="explain" style="height:18px;width:18px;cursor:pointer" onclick="explainMaxProperty()"/>
                 </td>
                 <td>
-                    <select id="maxProperty">
+                    <select id="maxProperty" onchange="changeMaxProperty()">
                         <option>5</option>
                         <option selected>10</option>
                         <option>15</option>
@@ -230,7 +230,7 @@
                     return;
                 }
                 if (arr.length > 10) {
-                    alert("Note:\nThe excessive number of physicochemical properties selected will result in too many curves on the page of visualization, which will affect the visual effect.\nWhen the number of physicochemical properties selected is large, the rendering speed of curves will become slower and the delay of the operation will increase.");
+                    alert("Note:\n(1) The excessive number of physicochemical properties selected will result in too many curves on the page of visualization, which will affect the visual effect.\n(2) When the number of physicochemical properties selected is large, the rendering speed of curves will become slower and the delay of the operation will increase.");
                 }
                 else if(sidarr.length > 5){
                     alert("Note:\nWhen the number of sequences selected is large, the rendering speed of curves will become slower and the delay of the operation will increase.");
