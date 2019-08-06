@@ -21,6 +21,10 @@ var tridnaArr = ["AAA","AAC","AAG","AAT","ACA","ACC","ACG","ACT","AGA","AGC","AG
 var rnaArr = ['A', 'C', 'G', 'U'];
 var dirnaArr = ["AA","AC","AG","AU","CA","CC","CG","CU","GA","GC","GG","GU","UA","UC","UG","UU"];
 
+if(process.platform == "linux" && !fs.existsSync("/usr/bin/Rscript")){
+  alert("Rscript was not found in '/usr/bin/' directory. The visualization of this function is based on R software and its ggplot2 package.\n\n(1) If you only want to generate the feature vectors of the sequences, you do not need to install R software and its ggplot2 package.\n(2) If you want to execute visualization, please install R software and its ggplot2 package first. Because there is no portable version of R software on the Linux platform. Details on how to install them can be found in the user manual.");
+}
+
 // 为最大可视化维度下拉框添加item
 function addMaxDimension(){
   let maxDimension = document.getElementById('maxDimension');
@@ -156,6 +160,14 @@ function changeMethod() {
       $("#td-lambda").text("(optional) λ:");
       $("#td-omega").text("(optional) w:");
       break;
+  }
+}
+
+// 当选择的最大理化性质数量大于10，提示程序所需的渲染时间会变长
+function changeMaxProperty() {
+  let maxProperty = $("#maxProperty option:selected").text();
+  if(maxProperty > 10){
+      alert("Note:\nThe excessive number of physicochemical properties selected will increase calculation time slightly.");
   }
 }
 
@@ -1311,7 +1323,7 @@ function generateTdf() {
 function upseVisualization() {
   const fs= require("fs");
   if(process.platform == "linux" && !fs.existsSync("/usr/bin/Rscript")){
-     alert("Rscript was not found in '/usr/bin/' directory. Please make sure R software and its ggplot2 package are properly installed before executing visualization. Details on how to install R software and its ggplot2 package can be found in the user manual.");
+     alert("Rscript was not found in '/usr/bin/' directory. Please make sure R software and its ggplot2 package are properly installed before executing visualization. Details on how to install them can be found in the user manual.");
      return;
   }
   maxVisualDimension = $("#maxDimension option:selected").text();
@@ -1792,7 +1804,7 @@ function explainMethod() {
 
 // 关于最大可选理化性质数量的提示
 function explainMaxProperty() {
-  alert('This item is used to set the maximum number of selectable physicochemical properties. Note: The excessive number of physicochemical properties selected will increase calculation time.');
+  alert('This item is used to set the maximum number of selectable physicochemical properties. Note: The excessive number of physicochemical properties selected will increase calculation time slightly.');
 }
 
 // 关于λ的提示

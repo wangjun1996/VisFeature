@@ -379,6 +379,10 @@ function openFile() {
         return;
       }
       else{
+        let fileSizeM = Math.floor(stats.size / 1048576); // Math.floor向下整除，如4/3=1;
+        if(fileSizeM >= 1){
+          alert(`It will take about ${5*fileSizeM} seconds (the exact time required depends on your computer's performance) to open this file, please do not perform other operations during this period.`);
+        }
         //实现每次打开新文件都使序列类型变为None
         require('electron').remote.getGlobal('sharedObject').sequenceType = 'None';
         $("#colorSequence").css("display", "none");
@@ -490,6 +494,25 @@ if (textArea != null) {
 
 // 单击可视化界面的"Main Page"按钮，跳转到主界面
 function backToMainPage() {
+  const fs = require('fs');
+  if ((selectFolder == null || selectFolder == "null") && document.getElementById("FilePathLabel").innerText == "" && require('electron').remote.getGlobal('sharedObject').theFile.name) {
+    fs.stat(require('electron').remote.getGlobal('sharedObject').theFile.name, function (err, stats) {
+      if (err) {
+        alert(err);
+        return;
+      }
+      if (stats.size > 5242880) {
+        alert("The file is too large, it must be less than 5MB.");
+        return;
+      }
+      else {
+        let fileSizeM = Math.floor(stats.size / 1048576); // Math.floor向下整除，如4/3=1;
+        if (fileSizeM >= 1) {
+          alert(`It will take about ${5 * fileSizeM} seconds (the exact time required depends on your computer's performance) to open file on the main page, please do not perform other operations during this period.`);
+        }
+      }
+    })
+  }
   window.location.href = encodeURI("index.html?selectFolder=" + selectFolder + "&selectFile=" + selectFile);
 }
 

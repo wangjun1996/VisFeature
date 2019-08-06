@@ -7,6 +7,7 @@ var aaindex566Json = readJsonSync(path.join(__dirname, 'txt', 'aaindex566.json')
 // 获取aaindex566.json 中的所有key，即所有理化性质的ID
 var propertyKeys = getKeysFromObject(aaindex566Json);
 
+// 不同的序列类型对应不同的理化性质
 function changeType() {
     let sequenceType = document.getElementById("sequenceType").value;
     switch (sequenceType) {
@@ -37,6 +38,7 @@ function changeType() {
     }
 }
 
+// 值的类型有2种：标准化的和未标准化的
 function changeValueType() {
     let json;
     if($("#valueType").val() == "standard"){
@@ -68,6 +70,14 @@ function changeValueType() {
     propertyKeys = json['name'];
     addcheckbox(propertyKeys);
 } 
+
+// 当选择的最大理化性质数量大于10，提示程序所需的渲染时间会变长
+function changeMaxProperty() {
+    let maxProperty = $("#maxProperty option:selected").text();
+    if(maxProperty > 10){
+        alert("Note:\n(1) The excessive number of physicochemical properties selected will result in too many curves on the page of visualization, which will affect the visual effect.\n(2) When the number of physicochemical properties selected is large, the rendering speed of curves will become slower and the delay of the operation will increase.");
+    }
+}
 
 // 添加多选框（序列的理化性质ID），data：数组
 function addcheckbox(data) {

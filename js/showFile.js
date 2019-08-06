@@ -102,6 +102,10 @@ function showFileContent(){
                   return;
                 }
                 else{
+                    let fileSizeM = Math.floor(stats.size / 1048576); // Math.floor向下整除，如4/3=1;
+                    if(fileSizeM >= 1){
+                      alert(`It will take about ${5*fileSizeM} seconds (the exact time required depends on your computer's performance) to open this file, please do not perform other operations during this period.`);
+                    }
                     fs.readFile(openFileName, 'utf-8', function(err,data){
                         if(err){
                             alert(err);
