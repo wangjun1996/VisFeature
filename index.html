@@ -33,7 +33,7 @@
     });
 
     require('electron').ipcRenderer.on('jumpToVisModeCompAndVis', (event, message) => {
-      window.location.href = encodeURI("visModeCompAndVis.html?selectFolder=" + selectFolder + "&selectFile=" + selectFile + "&dimension=" + message["dimension"] + "&seqType=" +  message["seqType"]);
+      window.location.href = encodeURI("visModeCompAndVis.html?selectFolder=" + selectFolder + "&selectFile=" + selectFile + "&dimension=" + message["dimension"] + "&seqType=" + message["seqType"]);
     });
 
     // 保持用户拖动的 left div 位置,注意：styleSheets[0]表示第1个css文件，cssRules[3]表示第4条规则,顺序不能错
@@ -117,20 +117,18 @@
   // 当selectFolder和FilePathLabel为空并且当前文件名不为空，则显示当前文件的内容。防止页面刷新或从可视化界面返回主界面时，textArea为空
   if ((selectFolder == null || selectFolder == "null") && document.getElementById("FilePathLabel").innerText == "" && require('electron').remote.getGlobal('sharedObject').theFile.name) {
     console.log("FilePathLabel为空");
-    document.getElementById("FilePathLabel").innerText = require('electron').remote.getGlobal('sharedObject').theFile.name;
     const fs = require('fs');
-    textArea.value = fs.readFileSync(require('electron').remote.getGlobal('sharedObject').theFile.name, 'utf8');
-  }
 
-  // 如果在visMode1.html 点击了菜单栏的'Open File'，则显示文件内容
-  if (selectFolder == null && selectFile != null && textArea != null) {
-    vis_showFile();
-  }
-
-  function vis_showFile() {
-    document.getElementById("FilePathLabel").innerText = require('electron').remote.getGlobal('sharedObject').theFile.name;
-    textArea.value = require('electron').remote.getGlobal('sharedObject').theFile.value;
-    visualization();
+    fs.readFile(require('electron').remote.getGlobal('sharedObject').theFile.name, 'utf-8', function (err, data) {
+      if (err) {
+        alert(err);
+      }
+      else {
+        require('electron').remote.getGlobal('sharedObject').theFile.value = data;
+        textArea.value = data;
+        document.getElementById("FilePathLabel").innerText = require('electron').remote.getGlobal('sharedObject').theFile.name;
+      }
+    });
   }
 </script>
 
