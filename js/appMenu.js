@@ -18,9 +18,6 @@ const mainMenuTemplate = [
           const open = askSaveIfNeed();
           if (open == 1 || open == 0)
             openFile();
-          if (textArea != null) {
-            visualization();
-          }
         }
       },
       {
@@ -389,16 +386,23 @@ function openFile() {
         $('.textArea').css('-webkit-text-fill-color', 'black');
         $('.textArea').css('background-color', 'white');
 
-        document.getElementById("FilePathLabel").innerText = files[0];
-        const txtRead = readText(files[0]);
         require('electron').remote.getGlobal('sharedObject').theFile.name = files[0];
-        require('electron').remote.getGlobal('sharedObject').theFile.value = txtRead;
         require('electron').remote.getGlobal('sharedObject').theFile.isSaved = true;
+
         if (textArea == null) {
           window.location.href = encodeURI("index.html?selectFile=" + files[0]);
         }
         else {
-          textArea.value = txtRead;
+          fs.readFile(files[0], 'utf-8', function (err, data) {
+            if (err) {
+              alert(err);
+            }
+            else {
+              require('electron').remote.getGlobal('sharedObject').theFile.value = data;
+              textArea.value = data;
+              document.getElementById("FilePathLabel").innerText = files[0];
+            }
+          });
         }
       }
     })

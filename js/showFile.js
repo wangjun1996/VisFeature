@@ -119,7 +119,7 @@ function showFileContent(){
                             require('electron').remote.getGlobal('sharedObject').theFile.name=openFileName;
                             require('electron').remote.getGlobal('sharedObject').theFile.value=data;
                             require('electron').remote.getGlobal('sharedObject').theFile.isSaved=true;
-                            visualization();
+                            //visualization();
                             textArea.focus();
                         }
                     });
