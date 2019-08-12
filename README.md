@@ -9,6 +9,8 @@ We have tested these codes on **Windows10-64bit platform** and **Ubuntu 16.04.5 
 
 - For ***Linux platform***, just download the `VisFeature-linux-x64.zip` package from https://github.com/wangjun1996/VisFeature/releases. Unpack it to your favorite location. Find out the location of the VisFeature that you unpack and then enter this folder in the terminal. Finally, type and execute the command: `./VisFeature`.
 
+- For ***Mac OS platform***, please download the `VisFeature-macOS.zip` and the `VisFeature-macOS.z01`. Use the following command in the directory with these files to unpack them.`zip -s 0 VisFeature-macOS.zip --out VisFeature-macOS-ALL.zip` `unzip VisFeature-macOS-ALL.zip`
+
 **Please note**: 
 
 - Some anti-virus software may report a risky warning when you first run VisFeature. Please do not worry about it and you can ignore it.
