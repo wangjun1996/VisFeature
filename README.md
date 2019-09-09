@@ -27,3 +27,8 @@ If you want to run these codes in the development environment, you should instal
 After your Node.js environment is ready, find out the location of the source code of VisFeature that you unpack and enter this directory in command line program. Then type and execute the command: `npm start`. After a few seconds, VisFeature will start.
 
 If you want to **package** application, you should install **electron** and **electron-packager** additionally by executing the command `npm install electron -g` and `npm install electron-packager -g`  in command line program. Then, find out the location of the source code of VisFeature that you unpack and enter this directory. Finally, type and execute the command: `npm run windows` or `npm run linux`  to get corresponding binary release.
+
+## Citation
+Please cite the following paper if you find VisFeature useful in your work:
+
+Jun Wang, Pu-Feng Du, Xin-Yu Xue, Guang-Ping Li, Yuan-Ke Zhou, Wei Zhao, Hao Lin, Wei Chen, VisFeature: a stand-alone program for visualizing and analyzing statistical features of biological sequences, Bioinformatics, , btz689, https://doi.org/10.1093/bioinformatics/btz689
