@@ -16,7 +16,7 @@
   "author": "WangJun et al.",
   "license": "GNU General Public License v3.0",
   "devDependencies": {
-    "electron": "^4.0.5"
+    "electron": "^11.5.0"
   },
   "build": {  
     "productName":"VisFeature",
